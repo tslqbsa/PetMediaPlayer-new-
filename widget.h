@@ -2,10 +2,6 @@
 #define WIDGET_H
 
 #include <QWidget>
-#include <QPoint>
-#include <QMouseEvent>
-#include <QLabel>
-
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,16 +15,10 @@ class Widget : public QWidget
 
 public:
     explicit Widget(QWidget *parent = nullptr);
-    ~Widget() override;
-protected:
-    void mousePressEvent(QMouseEvent *event) override; // 鼠标按下
-    void mouseMoveEvent(QMouseEvent *event) override;  // 鼠标移动
+    ~Widget();
+
 private:
     Ui::Widget *ui;
-    QPoint DragPosition;//落下位置
-    QLabel *TalkLabel;//对话label
 };
+
 #endif // WIDGET_H
-
-
-
