@@ -1,6 +1,8 @@
 #include "petwidget.h"
 #include <QPixmap>
 #include <QDebug>
+#include <QRandomGenerator>
+#include <QStringList>
 
 PetWidget::PetWidget(QWidget *parent)
     : QWidget{parent}
@@ -23,12 +25,26 @@ PetWidget::PetWidget(QWidget *parent)
     PetLabel->resize(pix.size());
     PetLabel->move((width() - PetLabel->width()) / 2,
                    (height() - PetLabel->height()) / 2);
+
+    //设置对话框
+    Bubble = new TalkBubble(this);
+    Bubble->move(80, 20);
+    Bubble->hide();
 }
 
 void PetWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         DragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
+        //随机台词
+        QStringList words = {
+            "别戳我",
+            "别烦我",
+            "嘶",
+            "曼波~"
+        };
+        int index = QRandomGenerator::global()->bounded(words.size());
+        Bubble->ShowText(words[index],1000);
     }
 }
 

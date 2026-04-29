@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPoint>
 #include <QMouseEvent>
+#include "talkbubble.h"
 
 class PetWidget : public QWidget
 {
@@ -20,6 +21,7 @@ protected:
 private:
     QLabel *PetLabel;//桌宠
     QPoint DragPosition;//落下位置
+    TalkBubble *Bubble;
 };
 
 #endif // PETWIDGET_H
