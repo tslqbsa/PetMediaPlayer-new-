@@ -1,5 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/images/pet.png</file>
+        <file>resources/images/angry.png</file>
+        <file>resources/images/listenangry.png</file>
+        <file>resources/images/listenquiet.png</file>
+        <file>resources/images/listenquiet2.png</file>
+        <file>resources/images/quiet.png</file>
+        <file>resources/images/quiet2.png</file>
     </qresource>
 </RCC>

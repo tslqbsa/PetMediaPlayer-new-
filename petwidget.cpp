@@ -1,21 +1,43 @@
 #include "petwidget.h"
+
 #include <QPixmap>
 #include <QDebug>
 #include <QRandomGenerator>
 #include <QStringList>
+#include <QTimer>
 
 PetWidget::PetWidget(QWidget *parent)
     : QWidget{parent}
 {
+    // 初始化窗口
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->resize(300, 300);
 
     PetLabel = new QLabel(this);
-    // 加载图片
-    QPixmap pix(":/resources/images/pet.png");
+
+    // 初始化图片
+    SetPetImage(ImageManager.BaseImage());
+
+    // 初始化待机动画定时器
+    IdleTimer = new QTimer(this);
+    connect(IdleTimer, &QTimer::timeout, this, [this]() {
+        SetPetImage(ImageManager.NextIdleImage());
+    });
+    IdleTimer->start(800);
+
+    // 初始化对话框
+    Bubble = new TalkBubble(this);
+    Bubble->move(80, 20);
+    Bubble->hide();
+}
+
+void PetWidget::SetPetImage(const QString &path)
+{
+    QPixmap pix(path);
+
     if (pix.isNull()) {
-        qDebug() << "图片加载失败";
+        qDebug() << "图片加载失败:" << path;
         return;
     }
 
@@ -25,26 +47,33 @@ PetWidget::PetWidget(QWidget *parent)
     PetLabel->resize(pix.size());
     PetLabel->move((width() - PetLabel->width()) / 2,
                    (height() - PetLabel->height()) / 2);
-
-    //设置对话框
-    Bubble = new TalkBubble(this);
-    Bubble->move(80, 20);
-    Bubble->hide();
 }
 
 void PetWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         DragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
-        //随机台词
+
+        // 随机台词
         QStringList words = {
             "别戳我",
             "别烦我",
             "嘶",
             "曼波~"
         };
+
         int index = QRandomGenerator::global()->bounded(words.size());
-        Bubble->ShowText(words[index],1000);
+        Bubble->ShowText(words[index], 1000);
+
+        // 点击时暂停待机动画，显示生气图片
+        IdleTimer->stop();
+        SetPetImage(ImageManager.AngryImage());
+
+        // 1 秒后恢复基准图片，并继续待机动画
+        QTimer::singleShot(1000, this, [this]() {
+            SetPetImage(ImageManager.BaseImage());
+            IdleTimer->start(800);
+        });
     }
 }
 

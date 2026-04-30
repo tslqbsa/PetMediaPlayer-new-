@@ -3,9 +3,12 @@
 
 #include <QWidget>
 #include <QLabel>
-#include <QPoint>
 #include <QMouseEvent>
+#include <QPoint>
+#include <QTimer>
+
 #include "talkbubble.h"
+#include "petimagemanager.h"
 
 class PetWidget : public QWidget
 {
@@ -15,13 +18,27 @@ public:
     explicit PetWidget(QWidget *parent = nullptr);
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;//鼠标按压
-    void mouseMoveEvent(QMouseEvent *event) override;//鼠标移动
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-    QLabel *PetLabel;//桌宠
-    QPoint DragPosition;//落下位置
+    // 图片显示
+    QLabel *PetLabel;
+
+    // 对话框
     TalkBubble *Bubble;
+
+    // 图片管理器
+    PetImageManager ImageManager;
+
+    // 待机动画定时器
+    QTimer *IdleTimer;
+
+    // 拖动位置
+    QPoint DragPosition;
+
+    // 设置图片
+    void SetPetImage(const QString &path);
 };
 
 #endif // PETWIDGET_H
