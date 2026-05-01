@@ -1,12 +1,12 @@
 #include "traymanager.h"
+#include "petwidget.h"
 
 #include <QApplication>
 
-TrayManager::TrayManager(QWidget *petWidget,
-                         QObject *parent)
+TrayManager::TrayManager(PetWidget *petWidget, QObject *parent)
     : QObject(parent)
 {
-    PetWidget = petWidget;
+    Pet = petWidget;
 
     // 创建托盘图标
     TrayIcon = new QSystemTrayIcon(this);
@@ -18,10 +18,15 @@ TrayManager::TrayManager(QWidget *petWidget,
 
     ShowAction = new QAction("显示桌宠", this);
     HideAction = new QAction("隐藏桌宠", this);
+    SleepAction = new QAction("睡觉", this);
+    WakeAction = new QAction("唤醒", this);
     QuitAction = new QAction("退出", this);
 
     TrayMenu->addAction(ShowAction);
     TrayMenu->addAction(HideAction);
+    TrayMenu->addSeparator();
+    TrayMenu->addAction(SleepAction);
+    TrayMenu->addAction(WakeAction);
     TrayMenu->addSeparator();
     TrayMenu->addAction(QuitAction);
 
@@ -31,14 +36,14 @@ TrayManager::TrayManager(QWidget *petWidget,
     connect(ShowAction, &QAction::triggered,
             this, [this]() {
 
-                PetWidget->show();
+                Pet->show();
             });
 
     // 隐藏桌宠
     connect(HideAction, &QAction::triggered,
             this, [this]() {
 
-                PetWidget->hide();
+                Pet->hide();
             });
 
     // 退出程序
@@ -48,6 +53,16 @@ TrayManager::TrayManager(QWidget *petWidget,
                 QApplication::quit();
             });
 
+    //睡觉
+    connect(SleepAction, &QAction::triggered, this, [this]() {
+        Pet->Sleep();
+    });
+
+    //唤醒
+    connect(WakeAction, &QAction::triggered, this, [this]() {
+        Pet->Wake();
+    });
+
     // 双击托盘切换显示
     connect(TrayIcon, &QSystemTrayIcon::activated,
             this,
@@ -55,11 +70,11 @@ TrayManager::TrayManager(QWidget *petWidget,
 
                 if (reason == QSystemTrayIcon::DoubleClick) {
 
-                    if (PetWidget->isVisible()) {
-                        PetWidget->hide();
+                    if (Pet->isVisible()) {
+                        Pet->hide();
                     }
                     else {
-                        PetWidget->show();
+                        Pet->show();
                     }
                 }
             });

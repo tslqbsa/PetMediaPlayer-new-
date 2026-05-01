@@ -5,6 +5,7 @@
 #include <QRandomGenerator>
 #include <QStringList>
 #include <QTimer>
+#include <QApplication>
 
 PetWidget::PetWidget(QWidget *parent)
     : QWidget{parent}
@@ -144,4 +145,50 @@ void PetWidget::mouseReleaseEvent(QMouseEvent *event)
     if (CurrentState == PetState::Drag) {
         ChangeState(PetState::Idle);
     }
+}
+
+void PetWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu(this);
+
+    QAction *ShowAction = menu.addAction("显示桌宠");
+    QAction *HideAction = menu.addAction("隐藏桌宠");
+
+    menu.addSeparator();
+
+    QAction *SleepAction = menu.addAction("睡觉");
+    QAction *WakeAction = menu.addAction("唤醒");
+
+    menu.addSeparator();
+
+    QAction *QuitAction = menu.addAction("退出");
+
+    QAction *selected = menu.exec(event->globalPos());
+
+    if (selected == ShowAction) {
+        this->show();
+    }
+    else if (selected == HideAction) {
+        this->hide();
+    }
+    else if (selected == SleepAction) {
+        ChangeState(PetState::Sleep);
+    }
+    else if (selected == WakeAction) {
+        ChangeState(PetState::Idle);
+        TimerManager->ResetSleepTimer();
+    }
+    else if (selected == QuitAction) {
+        QApplication::quit();
+    }
+}
+void PetWidget::Sleep()
+{
+    ChangeState(PetState::Sleep);
+}
+
+void PetWidget::Wake()
+{
+    ChangeState(PetState::Idle);
+    TimerManager->ResetSleepTimer();
 }

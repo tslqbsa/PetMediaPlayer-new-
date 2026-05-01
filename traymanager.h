@@ -5,17 +5,16 @@
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
-
+class PetWidget;
 class TrayManager : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit TrayManager(QWidget *petWidget,
-                         QObject *parent = nullptr);
+    explicit TrayManager(PetWidget *petWidget, QObject *parent = nullptr);
 
 private:
-    QWidget *PetWidget;
+    PetWidget *Pet;
 
     QSystemTrayIcon *TrayIcon;
 
@@ -23,6 +22,8 @@ private:
 
     QAction *ShowAction;
     QAction *HideAction;
+    QAction *SleepAction;
+    QAction *WakeAction;
     QAction *QuitAction;
 };
 

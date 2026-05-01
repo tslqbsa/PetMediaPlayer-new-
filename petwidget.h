@@ -6,6 +6,9 @@
 #include <QMouseEvent>
 #include <QPoint>
 #include <QTimer>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QAction>
 
 #include "talkbubble.h"
 #include "petimagemanager.h"
@@ -27,12 +30,15 @@ class PetWidget : public QWidget
 
 public:
     explicit PetWidget(QWidget *parent = nullptr);
+    void Sleep();
+    void Wake();//暴露给tray
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void ChangeState(PetState state);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     // 图片显示
