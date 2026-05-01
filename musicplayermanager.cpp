@@ -17,6 +17,8 @@ MusicPlayerManager::MusicPlayerManager(QObject *parent)
     AudioOutput->setVolume(0.0);          // 默认音量 0%
 
     CurrentIndex = -1; // 当前默认没有歌曲
+    CurrentPlayMode = PlayMode::Sequential; // 默认顺序播放
+
     qDebug() << "当前音量:" << AudioOutput->volume();
 
     connect(Player, &QMediaPlayer::mediaStatusChanged, this,
@@ -107,17 +109,40 @@ QString MusicPlayerManager::GetCurrentFilePath() const
 void MusicPlayerManager::NextMusic()
 {
     if (MusicList.isEmpty()) {
-        qDebug() << "播放列表为空，无法切换下一首";
+        qDebug() << "播放列表为空";
         return;
     }
-
-    CurrentIndex++;
-
-    if (CurrentIndex >= MusicList.size()) {
-        CurrentIndex = 0; // 到最后一首后回到第一首
+    if (CurrentIndex >= 0) {
+        PlayHistory.append(CurrentIndex);
     }
 
-    qDebug() << "切换到下一首:" << MusicList[CurrentIndex];
+    switch (CurrentPlayMode)
+    {
+    case PlayMode::Sequential:
+
+        CurrentIndex++;
+
+        if (CurrentIndex >= MusicList.size()) {
+            CurrentIndex = 0;
+        }
+
+        break;
+
+    case PlayMode::Loop:
+
+        // 单曲循环
+        // 不改变 CurrentIndex
+
+        break;
+
+    case PlayMode::Random:
+
+        CurrentIndex = rand() % MusicList.size();
+
+        break;
+    }
+
+    qDebug() << "当前播放:" << MusicList[CurrentIndex];
 
     SetMusicFile(MusicList[CurrentIndex]);
     Play();
@@ -125,18 +150,14 @@ void MusicPlayerManager::NextMusic()
 
 void MusicPlayerManager::PreviousMusic()
 {
-    if (MusicList.isEmpty()) {
-        qDebug() << "播放列表为空，无法切换上一首";
+    if (PlayHistory.isEmpty()) {
+        qDebug() << "没有上一首播放历史";
         return;
     }
 
-    CurrentIndex--;
+    CurrentIndex = PlayHistory.takeLast();
 
-    if (CurrentIndex < 0) {
-        CurrentIndex = MusicList.size() - 1; // 到第一首前回到最后一首
-    }
-
-    qDebug() << "切换到上一首:" << MusicList[CurrentIndex];
+    qDebug() << "回到上一首播放历史:" << MusicList[CurrentIndex];
 
     SetMusicFile(MusicList[CurrentIndex]);
     Play();
@@ -180,3 +201,42 @@ void MusicPlayerManager::SetVolume(int volume)
 
     qDebug() << "当前音量:" << volume;
 }
+
+void MusicPlayerManager::ChangePlayMode()
+{
+    switch (CurrentPlayMode)
+    {
+    case PlayMode::Sequential:
+        CurrentPlayMode = PlayMode::Loop;
+        qDebug() << "当前播放模式：单曲循环";
+        break;
+
+    case PlayMode::Loop:
+        CurrentPlayMode = PlayMode::Random;
+        qDebug() << "当前播放模式：随机播放";
+        break;
+
+    case PlayMode::Random:
+        CurrentPlayMode = PlayMode::Sequential;
+        qDebug() << "当前播放模式：顺序播放";
+        break;
+    }
+}
+
+QString MusicPlayerManager::GetPlayModeText() const
+{
+    switch (CurrentPlayMode)
+    {
+    case PlayMode::Sequential:
+        return "顺序播放";
+
+    case PlayMode::Loop:
+        return "单曲循环";
+
+    case PlayMode::Random:
+        return "随机播放";
+    }
+
+    return "顺序播放";
+}
+

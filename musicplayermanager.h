@@ -3,9 +3,17 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QList>
 
 class QMediaPlayer;
 class QAudioOutput;
+
+enum class PlayMode
+{
+    Sequential, // 顺序播放
+    Loop,       // 单曲循环
+    Random      // 随机播放
+};
 
 class MusicPlayerManager : public QObject
 {
@@ -26,13 +34,16 @@ public:
     void Backward(int ms = 10000);                  // 快退
     void SetVolume(int volume);                     // 设置音量
     QString GetCurrentFilePath() const; // 获取当前音乐路径
+    void ChangePlayMode(); // 切换播放模式
+    QString GetPlayModeText() const; // 获取播放模式
 
 private:
     QMediaPlayer *Player;      // 音乐播放器
     QAudioOutput *AudioOutput; // 音频输出
     QStringList MusicList; // 音乐文件路径列表
     int CurrentIndex;      // 当前播放下标
-
+    PlayMode CurrentPlayMode; // 当前播放模式
+    QList<int> PlayHistory; // 播放历史
 };
 
 #endif // MUSICPLAYERMANAGER_H

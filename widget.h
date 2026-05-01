@@ -41,6 +41,8 @@ private slots:
 
     void on_VolumeSlider_valueChanged(int value);
 
+    void on_PlayModeButton_clicked();
+
 private:
     Ui::Widget *ui;
 

@@ -117,3 +117,10 @@ void Widget::on_VolumeSlider_valueChanged(int value)
     MusicPlayer->SetVolume(value); // 设置音量
 }
 
+
+void Widget::on_PlayModeButton_clicked()
+{
+    MusicPlayer->ChangePlayMode();
+    ui->PlayModeButton->setText(MusicPlayer->GetPlayModeText());
+}
+

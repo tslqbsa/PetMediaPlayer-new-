@@ -149,7 +149,7 @@
      <x>100</x>
      <y>230</y>
      <width>16</width>
-     <height>71</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="maximum">
@@ -157,6 +157,19 @@
    </property>
    <property name="orientation">
     <enum>Qt::Orientation::Vertical</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="PlayModeButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>80</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>顺序播放</string>
    </property>
   </widget>
  </widget>
