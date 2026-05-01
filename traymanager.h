@@ -20,6 +20,7 @@ private:
 
     QMenu *TrayMenu;
 
+    QAction *SettingAction;
     QAction *ShowAction;
     QAction *HideAction;
     QAction *SleepAction;

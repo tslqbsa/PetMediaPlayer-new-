@@ -17,6 +17,10 @@ PetWidget::PetWidget(QWidget *parent)
 
     PetLabel = new QLabel(this);
 
+    // 初始化控制面板
+    ControlPanel = new Widget();
+    ControlPanel->hide();
+
     // 初始化图片
     SetPetImage(ImageManager.BaseImage());
     CurrentState = PetState::Idle;
@@ -60,6 +64,13 @@ PetWidget::PetWidget(QWidget *parent)
     TimerManager->StartIdleAnimation();
     TimerManager->StartRandomTalk();
     TimerManager->ResetSleepTimer();
+}
+
+void PetWidget::OpenControlPanel()
+{
+    ControlPanel->show();
+    ControlPanel->raise();
+    ControlPanel->activateWindow();
 }
 
 void PetWidget::ChangeState(PetState state)
@@ -161,6 +172,7 @@ void PetWidget::contextMenuEvent(QContextMenuEvent *event)
 
     menu.addSeparator();
 
+    QAction *SettingAction = menu.addAction("设置");
     QAction *QuitAction = menu.addAction("退出");
 
     QAction *selected = menu.exec(event->globalPos());
@@ -180,6 +192,9 @@ void PetWidget::contextMenuEvent(QContextMenuEvent *event)
     }
     else if (selected == QuitAction) {
         QApplication::quit();
+    }
+    else if (selected == SettingAction) {
+        OpenControlPanel();
     }
 }
 void PetWidget::Sleep()

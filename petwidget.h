@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <QAction>
 
+#include "widget.h"
 #include "talkbubble.h"
 #include "petimagemanager.h"
 #include "pettimermanager.h"
@@ -32,6 +33,7 @@ public:
     explicit PetWidget(QWidget *parent = nullptr);
     void Sleep();
     void Wake();//暴露给tray
+    void OpenControlPanel();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -41,6 +43,8 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
+    //主菜单
+    Widget *ControlPanel;
     // 图片显示
     QLabel *PetLabel;
 

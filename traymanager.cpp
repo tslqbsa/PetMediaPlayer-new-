@@ -20,6 +20,7 @@ TrayManager::TrayManager(PetWidget *petWidget, QObject *parent)
     HideAction = new QAction("隐藏桌宠", this);
     SleepAction = new QAction("睡觉", this);
     WakeAction = new QAction("唤醒", this);
+    SettingAction = new QAction("设置", this);
     QuitAction = new QAction("退出", this);
 
     TrayMenu->addAction(ShowAction);
@@ -28,6 +29,7 @@ TrayManager::TrayManager(PetWidget *petWidget, QObject *parent)
     TrayMenu->addAction(SleepAction);
     TrayMenu->addAction(WakeAction);
     TrayMenu->addSeparator();
+    TrayMenu->addAction(SettingAction);
     TrayMenu->addAction(QuitAction);
 
     TrayIcon->setContextMenu(TrayMenu);
@@ -61,6 +63,11 @@ TrayManager::TrayManager(PetWidget *petWidget, QObject *parent)
     //唤醒
     connect(WakeAction, &QAction::triggered, this, [this]() {
         Pet->Wake();
+    });
+
+    //设置
+    connect(SettingAction, &QAction::triggered, this, [this]() {
+        Pet->OpenControlPanel();
     });
 
     // 双击托盘切换显示

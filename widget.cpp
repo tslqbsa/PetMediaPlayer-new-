@@ -8,9 +8,6 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    PetWidget *pet = new PetWidget();
-    pet->show();
-
     this->hide();
 }
 
