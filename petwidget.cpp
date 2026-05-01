@@ -25,6 +25,9 @@ PetWidget::PetWidget(QWidget *parent)
     Bubble->move(80, 20);
     Bubble->hide();
 
+    // 初始化托盘
+    Tray = new TrayManager(this, this);
+
     // 初始化定时器
     TimerManager = new PetTimerManager(this);
 

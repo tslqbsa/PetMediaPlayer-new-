@@ -10,6 +10,7 @@
 #include "talkbubble.h"
 #include "petimagemanager.h"
 #include "pettimermanager.h"
+#include "traymanager.h"
 
 enum class PetState
 {
@@ -54,6 +55,9 @@ private:
 
     //当前状态
     PetState CurrentState;
+
+    //托盘
+    TrayManager *Tray;
 };
 
 #endif // PETWIDGET_H
