@@ -1,15 +1,48 @@
 #include "widget.h"
 #include "musicplayermanager.h"
 #include "./ui_widget.h"
+#include "uistylehelper.h"
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFileDialog>
+#include <QStyle>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
+    // 设置播放器按钮图标
+    ui->PlayButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    ui->PauseButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    ui->StopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
+
+    ui->PreviousButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
+    ui->NextButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+
+    ui->BackwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
+    ui->ForwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
+    //图标风格
+    QString ButtonStyle = UIStyleHelper::GetToolButtonStyle();
+    ui->PlayButton->setStyleSheet(ButtonStyle);
+    ui->PauseButton->setStyleSheet(ButtonStyle);
+    ui->StopButton->setStyleSheet(ButtonStyle);
+
+    ui->PreviousButton->setStyleSheet(ButtonStyle);
+    ui->NextButton->setStyleSheet(ButtonStyle);
+
+    ui->BackwardButton->setStyleSheet(ButtonStyle);
+    ui->ForwardButton->setStyleSheet(ButtonStyle);
+
+    ui->CurrentMusicLabel->setAlignment(Qt::AlignCenter);
+    ui->CurrentMusicLabel->setWordWrap(true);
+    ui->CurrentMusicLabel->setStyleSheet(R"(
+    QLabel {
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+    }
+)");
 
     MusicPlayer = new MusicPlayerManager(this);
 
@@ -122,5 +155,11 @@ void Widget::on_PlayModeButton_clicked()
 {
     MusicPlayer->ChangePlayMode();
     ui->PlayModeButton->setText(MusicPlayer->GetPlayModeText());
+}
+
+
+void Widget::on_PlayButton_2_clicked()
+{
+
 }
 

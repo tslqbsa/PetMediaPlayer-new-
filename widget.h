@@ -43,6 +43,8 @@ private slots:
 
     void on_PlayModeButton_clicked();
 
+    void on_PlayButton_2_clicked();
+
 private:
     Ui::Widget *ui;
 

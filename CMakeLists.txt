@@ -31,6 +31,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         traymanager.h traymanager.cpp
         musicplayermanager.h musicplayermanager.cpp
         playlistwindow.h playlistwindow.cpp playlistwindow.ui
+        uistylehelper.h uistylehelper.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET PetMediaPlayer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
