@@ -23,9 +23,19 @@ PetWidget::PetWidget(QWidget *parent)
     // 初始化待机动画定时器
     IdleTimer = new QTimer(this);
     connect(IdleTimer, &QTimer::timeout, this, [this]() {
+        if (CurrentState != PetState::Idle) {
+            return;
+        }
         SetPetImage(ImageManager.NextIdleImage());
     });
     IdleTimer->start(800);
+
+    AngryTimer = new QTimer(this);
+    AngryTimer->setSingleShot(true);
+
+    connect(AngryTimer, &QTimer::timeout, this, [this]() {
+        ChangeState(PetState::Idle);
+    });
 
     // 初始化对话框
     Bubble = new TalkBubble(this);
@@ -44,10 +54,11 @@ void PetWidget::ChangeState(PetState state)
     else if (state == PetState::Angry) {
         IdleTimer->stop();
         SetPetImage(ImageManager.AngryImage());
-
-        QTimer::singleShot(1000, this, [this]() {
-            ChangeState(PetState::Idle);
-        });
+        AngryTimer->start(1000);
+    }
+    else if(state==PetState::Drag){
+        IdleTimer->stop();
+        SetPetImage(ImageManager.DragImage());
     }
 }
 
@@ -77,20 +88,28 @@ void PetWidget::mousePressEvent(QMouseEvent *event)
         // 随机台词
         Bubble->ShowRandomText(1000);
 
-        // 点击时暂停待机动画，显示生气图片
+        // 点击时先显示生气状态
         ChangeState(PetState::Angry);
-
-        // 1 秒后恢复基准图片，并继续待机动画
-        QTimer::singleShot(1000, this, [this]() {
-            SetPetImage(ImageManager.BaseImage());
-            IdleTimer->start(800);
-        });
     }
 }
 
 void PetWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
+        // 拖动时进入拖动状态
+        if (CurrentState != PetState::Drag) {
+            ChangeState(PetState::Drag);
+        }
+
         move(event->globalPosition().toPoint() - DragPosition);
+    }
+}
+
+void PetWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+
+    if (CurrentState == PetState::Drag) {
+        ChangeState(PetState::Idle);
     }
 }

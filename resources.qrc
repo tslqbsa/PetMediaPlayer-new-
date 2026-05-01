@@ -6,5 +6,6 @@
         <file>resources/images/listenquiet2.png</file>
         <file>resources/images/quiet.png</file>
         <file>resources/images/quiet2.png</file>
+        <file>resources/images/drag.png</file>
     </qresource>
 </RCC>

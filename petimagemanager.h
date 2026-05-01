@@ -12,12 +12,14 @@ public:
     QString BaseImage() const;
     QString NextIdleImage();
     QString AngryImage() const;
+    QString DragImage() const;
 
 private:
     QStringList IdleImages;
     int IdleIndex;
 
     QString AngryPath;
+    QString DragPath;
 };
 
 #endif // PETIMAGEMANAGER_H

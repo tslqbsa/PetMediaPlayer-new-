@@ -29,6 +29,7 @@ public:
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void ChangeState(PetState state);
 
 private:
@@ -43,6 +44,7 @@ private:
 
     // 待机动画定时器
     QTimer *IdleTimer;
+    QTimer *AngryTimer;
 
     // 拖动位置
     QPoint DragPosition;

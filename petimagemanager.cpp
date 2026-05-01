@@ -11,6 +11,7 @@ PetImageManager::PetImageManager()
     IdleIndex = 0;
 
     AngryPath = ":/resources/images/angry.png";
+    DragPath= ":/resources/images/drag.png";
 }
 
 QString PetImageManager::BaseImage() const
@@ -27,4 +28,9 @@ QString PetImageManager::NextIdleImage()
 QString PetImageManager::AngryImage() const
 {
     return AngryPath;
+}
+
+QString PetImageManager::DragImage() const
+{
+    return DragPath;
 }
