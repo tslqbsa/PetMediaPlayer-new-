@@ -2,6 +2,7 @@
 #include "musicplayermanager.h"
 #include "./ui_widget.h"
 #include "uistylehelper.h"
+#include "petwidget.h"
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFileDialog>
@@ -49,6 +50,8 @@ Widget::Widget(QWidget *parent)
     connect(MusicPlayer, &MusicPlayerManager::CurrentMusicChanged,
             this, &Widget::UpdateCurrentMusicLabel);
     this->hide();
+
+    Pet=nullptr;
 }
 
 Widget::~Widget()
@@ -59,19 +62,29 @@ Widget::~Widget()
 
 void Widget::on_PlayButton_clicked()
 {
-    MusicPlayer->Play(); // 播放音乐
-}
+    MusicPlayer->Play();
 
+    if (Pet != nullptr) {
+        Pet->StartListen();
+    }
+}
 
 void Widget::on_PauseButton_clicked()
 {
-    MusicPlayer->Pause(); // 暂停音乐
-}
+    MusicPlayer->Pause();
 
+    if (Pet != nullptr) {
+        Pet->StopListen();
+    }
+}
 
 void Widget::on_StopButton_clicked()
 {
-    MusicPlayer->Stop(); // 停止音乐
+    MusicPlayer->Stop();
+
+    if (Pet != nullptr) {
+        Pet->StopListen();
+    }
 }
 
 void Widget::on_SelectMusicButton_clicked()
@@ -157,9 +170,13 @@ void Widget::on_PlayModeButton_clicked()
     ui->PlayModeButton->setText(MusicPlayer->GetPlayModeText());
 }
 
-
-void Widget::on_PlayButton_2_clicked()
+void Widget::SetPetWidget(PetWidget *petWidget)
 {
-
+    Pet = petWidget;
 }
+
+
+
+
+
 

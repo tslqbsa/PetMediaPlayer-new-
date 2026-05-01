@@ -18,11 +18,12 @@
 
 enum class PetState
 {
-    Idle,     // 待机
-    Angry,    // 生气
-    Listen,   // 听歌
-    Sleep,    // 睡觉
-    Drag      // 被拖动
+    Idle,        // 普通待机
+    Sleep,       // 睡觉
+    Angry,       // 生气
+    Drag,        // 拖动
+    ListenIdle,  // 听歌待机
+    ListenAngry  // 听歌生气
 };
 
 class PetWidget : public QWidget
@@ -34,6 +35,8 @@ public:
     void Sleep();
     void Wake();//暴露给tray
     void OpenControlPanel();
+    void StartListen(); // 进入听歌状态
+    void StopListen();  // 退出听歌状态
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

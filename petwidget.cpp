@@ -19,6 +19,7 @@ PetWidget::PetWidget(QWidget *parent)
 
     // 初始化控制面板
     ControlPanel = new Widget();
+    ControlPanel->SetPetWidget(this);
     ControlPanel->hide();
 
     // 初始化图片
@@ -37,14 +38,21 @@ PetWidget::PetWidget(QWidget *parent)
     TimerManager = new PetTimerManager(this);
 
     connect(TimerManager, &PetTimerManager::IdleTimeout, this, [this]() {
-        if (CurrentState != PetState::Idle) {
-            return;
+        if (CurrentState == PetState::Idle) {
+            SetPetImage(ImageManager.NextIdleImage());
         }
-        SetPetImage(ImageManager.NextIdleImage());
+        else if (CurrentState == PetState::ListenIdle) {
+            SetPetImage(ImageManager.NextListenIdleImage());
+        }
     });
 
     connect(TimerManager, &PetTimerManager::AngryTimeout, this, [this]() {
-        ChangeState(PetState::Idle);
+        if (CurrentState == PetState::ListenIdle) {
+            ChangeState(PetState::ListenAngry);
+        }
+        else {
+            ChangeState(PetState::Angry);
+        }
     });
 
     connect(TimerManager, &PetTimerManager::TalkTimeout, this, [this]() {
@@ -58,6 +66,12 @@ PetWidget::PetWidget(QWidget *parent)
     });
 
     connect(TimerManager, &PetTimerManager::SleepTimeout, this, [this]() {
+        if (CurrentState == PetState::ListenIdle ||
+            CurrentState == PetState::ListenAngry) {
+            TimerManager->ResetSleepTimer();
+            return;
+        }
+
         ChangeState(PetState::Sleep);
     });
 
@@ -93,6 +107,15 @@ void PetWidget::ChangeState(PetState state)
     else if (state == PetState::Sleep) {
         TimerManager->StopIdleAnimation();
         SetPetImage(ImageManager.SleepImage());
+    }
+    else if (state == PetState::ListenIdle) {
+        SetPetImage(ImageManager.NextListenIdleImage());
+        TimerManager->StartIdleAnimation();
+    }
+    else if (state == PetState::ListenAngry) {
+        TimerManager->StopIdleAnimation();
+        SetPetImage(ImageManager.ListenAngryImage());
+        TimerManager->StartAngryTimer();
     }
 }
 
@@ -133,7 +156,13 @@ void PetWidget::mousePressEvent(QMouseEvent *event)
         Bubble->ShowRandomText(1000);
 
         // 点击时进入生气状态
-        ChangeState(PetState::Angry);
+        // 听歌状态下进入听歌生气
+        if (CurrentState == PetState::ListenIdle) {
+            ChangeState(PetState::ListenAngry);
+        }
+        else {
+            ChangeState(PetState::Angry);
+        }
     }
 }
 
@@ -206,4 +235,14 @@ void PetWidget::Wake()
 {
     ChangeState(PetState::Idle);
     TimerManager->ResetSleepTimer();
+}
+
+void PetWidget::StartListen()
+{
+    ChangeState(PetState::ListenIdle);
+}
+
+void PetWidget::StopListen()
+{
+    ChangeState(PetState::Idle);
 }

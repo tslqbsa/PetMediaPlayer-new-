@@ -8,11 +8,20 @@ PetImageManager::PetImageManager()
         ":/resources/images/quiet2.png",
     };
 
+    ListenIdleImages = {
+        ":/resources/images/listenquiet.png",
+        ":/resources/images/listenquiet.png",
+        ":/resources/images/listenquiet2.png",
+    };
+
     IdleIndex = 0;
+    ListenIdleIndex = 0;
 
     AngryPath = ":/resources/images/angry.png";
-    DragPath= ":/resources/images/drag.png";
-    SleepPath= ":/resources/images/sleep.png";
+    DragPath = ":/resources/images/drag.png";
+    SleepPath = ":/resources/images/sleep.png";
+
+    ListenAngryPath = ":/resources/images/listenangry.png";
 }
 
 QString PetImageManager::BaseImage() const
@@ -39,4 +48,15 @@ QString PetImageManager::DragImage() const
 QString PetImageManager::SleepImage() const
 {
     return SleepPath;
+}
+
+QString PetImageManager::NextListenIdleImage()
+{
+    ListenIdleIndex = (ListenIdleIndex + 1) % ListenIdleImages.size();
+    return ListenIdleImages[ListenIdleIndex];
+}
+
+QString PetImageManager::ListenAngryImage() const
+{
+    return ListenAngryPath;
 }
