@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class MusicPlayerManager;
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -17,8 +19,19 @@ public:
     explicit Widget(QWidget *parent = nullptr);
     ~Widget();
 
+private slots:
+    void on_SelectMusicButton_clicked();
+
+    void on_PlayButton_clicked();
+
+    void on_PauseButton_clicked();
+
+    void on_StopButton_clicked();
+
 private:
     Ui::Widget *ui;
+
+    MusicPlayerManager *MusicPlayer;
 };
 
 #endif // WIDGET_H
