@@ -12,6 +12,7 @@ PetImageManager::PetImageManager()
 
     AngryPath = ":/resources/images/angry.png";
     DragPath= ":/resources/images/drag.png";
+    SleepPath= ":/resources/images/sleep.png";
 }
 
 QString PetImageManager::BaseImage() const
@@ -33,4 +34,9 @@ QString PetImageManager::AngryImage() const
 QString PetImageManager::DragImage() const
 {
     return DragPath;
+}
+
+QString PetImageManager::SleepImage() const
+{
+    return SleepPath;
 }

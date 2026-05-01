@@ -9,6 +9,7 @@
 
 #include "talkbubble.h"
 #include "petimagemanager.h"
+#include "pettimermanager.h"
 
 enum class PetState
 {
@@ -42,9 +43,8 @@ private:
     // 图片管理器
     PetImageManager ImageManager;
 
-    // 待机动画定时器
-    QTimer *IdleTimer;
-    QTimer *AngryTimer;
+    // 定时器
+    PetTimerManager *TimerManager;
 
     // 拖动位置
     QPoint DragPosition;

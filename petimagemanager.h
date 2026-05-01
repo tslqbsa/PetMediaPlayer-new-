@@ -13,6 +13,7 @@ public:
     QString NextIdleImage();
     QString AngryImage() const;
     QString DragImage() const;
+    QString SleepImage() const;
 
 private:
     QStringList IdleImages;
@@ -20,6 +21,7 @@ private:
 
     QString AngryPath;
     QString DragPath;
+    QString SleepPath;
 };
 
 #endif // PETIMAGEMANAGER_H

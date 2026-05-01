@@ -20,27 +20,42 @@ PetWidget::PetWidget(QWidget *parent)
     SetPetImage(ImageManager.BaseImage());
     CurrentState = PetState::Idle;
 
-    // 初始化待机动画定时器
-    IdleTimer = new QTimer(this);
-    connect(IdleTimer, &QTimer::timeout, this, [this]() {
+    // 初始化对话框
+    Bubble = new TalkBubble(this);
+    Bubble->move(80, 20);
+    Bubble->hide();
+
+    // 初始化定时器
+    TimerManager = new PetTimerManager(this);
+
+    connect(TimerManager, &PetTimerManager::IdleTimeout, this, [this]() {
         if (CurrentState != PetState::Idle) {
             return;
         }
         SetPetImage(ImageManager.NextIdleImage());
     });
-    IdleTimer->start(800);
 
-    AngryTimer = new QTimer(this);
-    AngryTimer->setSingleShot(true);
-
-    connect(AngryTimer, &QTimer::timeout, this, [this]() {
+    connect(TimerManager, &PetTimerManager::AngryTimeout, this, [this]() {
         ChangeState(PetState::Idle);
     });
 
-    // 初始化对话框
-    Bubble = new TalkBubble(this);
-    Bubble->move(80, 20);
-    Bubble->hide();
+    connect(TimerManager, &PetTimerManager::TalkTimeout, this, [this]() {
+        // 只有待机状态才随机说话
+        if (CurrentState == PetState::Idle) {
+            Bubble->ShowRandomText(2000);
+        }
+
+        // 随机下一次说话时间
+        TimerManager->StartRandomTalk();
+    });
+
+    connect(TimerManager, &PetTimerManager::SleepTimeout, this, [this]() {
+        ChangeState(PetState::Sleep);
+    });
+
+    TimerManager->StartIdleAnimation();
+    TimerManager->StartRandomTalk();
+    TimerManager->ResetSleepTimer();
 }
 
 void PetWidget::ChangeState(PetState state)
@@ -49,19 +64,22 @@ void PetWidget::ChangeState(PetState state)
 
     if (state == PetState::Idle) {
         SetPetImage(ImageManager.BaseImage());
-        IdleTimer->start(800);
+        TimerManager->StartIdleAnimation();
     }
     else if (state == PetState::Angry) {
-        IdleTimer->stop();
+        TimerManager->StopIdleAnimation();
         SetPetImage(ImageManager.AngryImage());
-        AngryTimer->start(1000);
+        TimerManager->StartAngryTimer();
     }
-    else if(state==PetState::Drag){
-        IdleTimer->stop();
+    else if (state == PetState::Drag) {
+        TimerManager->StopIdleAnimation();
         SetPetImage(ImageManager.DragImage());
     }
+    else if (state == PetState::Sleep) {
+        TimerManager->StopIdleAnimation();
+        SetPetImage(ImageManager.SleepImage());
+    }
 }
-
 
 void PetWidget::SetPetImage(const QString &path)
 {
@@ -83,12 +101,23 @@ void PetWidget::SetPetImage(const QString &path)
 void PetWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
+
+        // 有操作就重置睡眠计时
+        TimerManager->ResetSleepTimer();
+
         DragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
+
+        // 如果正在睡觉，点击只负责唤醒
+        if (CurrentState == PetState::Sleep) {
+            ChangeState(PetState::Idle);
+            Bubble->ShowText("醒啦...", 1000);
+            return;
+        }
 
         // 随机台词
         Bubble->ShowRandomText(1000);
 
-        // 点击时先显示生气状态
+        // 点击时进入生气状态
         ChangeState(PetState::Angry);
     }
 }
