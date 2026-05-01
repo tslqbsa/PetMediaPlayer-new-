@@ -10,6 +10,15 @@
 #include "talkbubble.h"
 #include "petimagemanager.h"
 
+enum class PetState
+{
+    Idle,     // 待机
+    Angry,    // 生气
+    Listen,   // 听歌
+    Sleep,    // 睡觉
+    Drag      // 被拖动
+};
+
 class PetWidget : public QWidget
 {
     Q_OBJECT
@@ -20,6 +29,7 @@ public:
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void ChangeState(PetState state);
 
 private:
     // 图片显示
@@ -39,6 +49,9 @@ private:
 
     // 设置图片
     void SetPetImage(const QString &path);
+
+    //当前状态
+    PetState CurrentState;
 };
 
 #endif // PETWIDGET_H

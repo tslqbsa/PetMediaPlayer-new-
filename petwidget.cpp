@@ -18,6 +18,7 @@ PetWidget::PetWidget(QWidget *parent)
 
     // 初始化图片
     SetPetImage(ImageManager.BaseImage());
+    CurrentState = PetState::Idle;
 
     // 初始化待机动画定时器
     IdleTimer = new QTimer(this);
@@ -31,6 +32,25 @@ PetWidget::PetWidget(QWidget *parent)
     Bubble->move(80, 20);
     Bubble->hide();
 }
+
+void PetWidget::ChangeState(PetState state)
+{
+    CurrentState = state;
+
+    if (state == PetState::Idle) {
+        SetPetImage(ImageManager.BaseImage());
+        IdleTimer->start(800);
+    }
+    else if (state == PetState::Angry) {
+        IdleTimer->stop();
+        SetPetImage(ImageManager.AngryImage());
+
+        QTimer::singleShot(1000, this, [this]() {
+            ChangeState(PetState::Idle);
+        });
+    }
+}
+
 
 void PetWidget::SetPetImage(const QString &path)
 {
@@ -55,19 +75,10 @@ void PetWidget::mousePressEvent(QMouseEvent *event)
         DragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
 
         // 随机台词
-        QStringList words = {
-            "别戳我",
-            "别烦我",
-            "嘶",
-            "曼波~"
-        };
-
-        int index = QRandomGenerator::global()->bounded(words.size());
-        Bubble->ShowText(words[index], 1000);
+        Bubble->ShowRandomText(1000);
 
         // 点击时暂停待机动画，显示生气图片
-        IdleTimer->stop();
-        SetPetImage(ImageManager.AngryImage());
+        ChangeState(PetState::Angry);
 
         // 1 秒后恢复基准图片，并继续待机动画
         QTimer::singleShot(1000, this, [this]() {
