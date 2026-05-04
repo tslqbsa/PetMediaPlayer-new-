@@ -22,6 +22,7 @@ PetImageManager::PetImageManager()
     SleepPath = ":/resources/images/sleep.png";
 
     ListenAngryPath = ":/resources/images/listenangry.png";
+    ListenDragPath = ":/resources/images/listendrag.png";
 }
 
 QString PetImageManager::BaseImage() const
@@ -59,4 +60,8 @@ QString PetImageManager::NextListenIdleImage()
 QString PetImageManager::ListenAngryImage() const
 {
     return ListenAngryPath;
+}
+QString PetImageManager::ListenDragImage() const
+{
+    return ListenDragPath;
 }

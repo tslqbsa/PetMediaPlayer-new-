@@ -23,7 +23,8 @@ enum class PetState
     Angry,       // 生气
     Drag,        // 拖动
     ListenIdle,  // 听歌待机
-    ListenAngry  // 听歌生气
+    ListenAngry,  // 听歌生气
+    ListenDrag // 听歌拖动
 };
 
 class PetWidget : public QWidget
@@ -71,6 +72,9 @@ private:
 
     //托盘
     TrayManager *Tray;
+
+    // 是否处于听歌模式
+    bool IsListening;
 };
 
 #endif // PETWIDGET_H

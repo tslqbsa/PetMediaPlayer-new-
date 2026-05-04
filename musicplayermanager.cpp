@@ -31,21 +31,34 @@ MusicPlayerManager::MusicPlayerManager(QObject *parent)
             });
 
     connect(Player, &QMediaPlayer::playbackStateChanged, this,
-            [](QMediaPlayer::PlaybackState state) {
-    });
+            [this](QMediaPlayer::PlaybackState state) {
+                if (state == QMediaPlayer::PlayingState) {
+                    emit MusicStarted();
+                }
+                else if (state == QMediaPlayer::PausedState) {
+                    emit MusicPaused();
+                }
+                else if (state == QMediaPlayer::StoppedState) {
+                    emit MusicStopped();
+                }
+            });
 
     connect(Player, &QMediaPlayer::errorOccurred, this,
             [](QMediaPlayer::Error error, const QString &errorString) {
-    });
+                qDebug() << "播放错误:" << error << errorString;
+            });
 }
 
 void MusicPlayerManager::SetMusicFile(const QString &filePath)
 {
     qDebug() << "加载文件:" << filePath;
 
-    Player->stop(); // 切歌前先停止
+    CurrentFilePath = filePath; // 记录当前音乐文件
+
+    Player->stop();
     Player->setSource(QUrl::fromLocalFile(filePath));
-    emit CurrentMusicChanged(); // 通知界面更新当前歌曲名
+
+    emit CurrentMusicChanged();
 }
 
 void MusicPlayerManager::Play()
@@ -99,11 +112,7 @@ void MusicPlayerManager::SetMusicFolder(const QString &folderPath)
 }
 QString MusicPlayerManager::GetCurrentFilePath() const
 {
-    if (CurrentIndex < 0 || CurrentIndex >= MusicList.size()) {
-        return "";
-    }
-
-    return MusicList[CurrentIndex];
+    return CurrentFilePath;
 }
 
 void MusicPlayerManager::NextMusic()

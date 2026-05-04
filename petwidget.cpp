@@ -25,6 +25,7 @@ PetWidget::PetWidget(QWidget *parent)
     // 初始化图片
     SetPetImage(ImageManager.BaseImage());
     CurrentState = PetState::Idle;
+    IsListening = false;
 
     // 初始化对话框
     Bubble = new TalkBubble(this);
@@ -47,11 +48,11 @@ PetWidget::PetWidget(QWidget *parent)
     });
 
     connect(TimerManager, &PetTimerManager::AngryTimeout, this, [this]() {
-        if (CurrentState == PetState::ListenIdle) {
-            ChangeState(PetState::ListenAngry);
+        if (IsListening) {
+            ChangeState(PetState::ListenIdle);
         }
         else {
-            ChangeState(PetState::Angry);
+            ChangeState(PetState::Idle);
         }
     });
 
@@ -66,8 +67,7 @@ PetWidget::PetWidget(QWidget *parent)
     });
 
     connect(TimerManager, &PetTimerManager::SleepTimeout, this, [this]() {
-        if (CurrentState == PetState::ListenIdle ||
-            CurrentState == PetState::ListenAngry) {
+        if (IsListening) {
             TimerManager->ResetSleepTimer();
             return;
         }
@@ -117,6 +117,10 @@ void PetWidget::ChangeState(PetState state)
         SetPetImage(ImageManager.ListenAngryImage());
         TimerManager->StartAngryTimer();
     }
+    else if (state == PetState::ListenDrag) {
+        TimerManager->StopIdleAnimation();
+        SetPetImage(ImageManager.ListenDragImage());
+    }
 }
 
 void PetWidget::SetPetImage(const QString &path)
@@ -157,7 +161,7 @@ void PetWidget::mousePressEvent(QMouseEvent *event)
 
         // 点击时进入生气状态
         // 听歌状态下进入听歌生气
-        if (CurrentState == PetState::ListenIdle) {
+        if (IsListening) {
             ChangeState(PetState::ListenAngry);
         }
         else {
@@ -169,9 +173,15 @@ void PetWidget::mousePressEvent(QMouseEvent *event)
 void PetWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
-        // 拖动时进入拖动状态
-        if (CurrentState != PetState::Drag) {
-            ChangeState(PetState::Drag);
+        if (CurrentState != PetState::Drag &&
+            CurrentState != PetState::ListenDrag) {
+
+            if (IsListening) {
+                ChangeState(PetState::ListenDrag);
+            }
+            else {
+                ChangeState(PetState::Drag);
+            }
         }
 
         move(event->globalPosition().toPoint() - DragPosition);
@@ -182,8 +192,15 @@ void PetWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 
-    if (CurrentState == PetState::Drag) {
-        ChangeState(PetState::Idle);
+    if (CurrentState == PetState::Drag ||
+        CurrentState == PetState::ListenDrag) {
+
+        if (IsListening) {
+            ChangeState(PetState::ListenIdle);
+        }
+        else {
+            ChangeState(PetState::Idle);
+        }
     }
 }
 
@@ -225,24 +242,38 @@ void PetWidget::contextMenuEvent(QContextMenuEvent *event)
     else if (selected == SettingAction) {
         OpenControlPanel();
     }
+    else if (selected == SleepAction) {
+        IsListening = false;
+        ChangeState(PetState::Sleep);
+    }
+    else if (selected == WakeAction) {
+        IsListening = false;
+        ChangeState(PetState::Idle);
+        TimerManager->ResetSleepTimer();
+    }
+
 }
 void PetWidget::Sleep()
 {
+    IsListening = false;
     ChangeState(PetState::Sleep);
 }
 
 void PetWidget::Wake()
 {
+    IsListening = false;
     ChangeState(PetState::Idle);
     TimerManager->ResetSleepTimer();
 }
 
 void PetWidget::StartListen()
 {
+    IsListening = true;
     ChangeState(PetState::ListenIdle);
 }
 
 void PetWidget::StopListen()
 {
+    IsListening = false;
     ChangeState(PetState::Idle);
 }

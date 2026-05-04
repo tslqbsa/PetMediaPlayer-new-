@@ -20,6 +20,9 @@ class MusicPlayerManager : public QObject
     Q_OBJECT
 signals:
     void CurrentMusicChanged(); // 当前音乐改变
+    void MusicStarted(); // 音乐开始播放
+    void MusicPaused();  // 音乐暂停
+    void MusicStopped(); // 音乐停止
 public:
     explicit MusicPlayerManager(QObject *parent = nullptr);
 
@@ -37,6 +40,7 @@ public:
     void ChangePlayMode(); // 切换播放模式
     QString GetPlayModeText() const; // 获取播放模式
 
+
 private:
     QMediaPlayer *Player;      // 音乐播放器
     QAudioOutput *AudioOutput; // 音频输出
@@ -44,6 +48,7 @@ private:
     int CurrentIndex;      // 当前播放下标
     PlayMode CurrentPlayMode; // 当前播放模式
     QList<int> PlayHistory; // 播放历史
+    QString CurrentFilePath; // 当前音乐文件路径
 };
 
 #endif // MUSICPLAYERMANAGER_H

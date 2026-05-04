@@ -5,7 +5,6 @@
 #include "petwidget.h"
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QFileDialog>
 #include <QStyle>
 
 Widget::Widget(QWidget *parent)
@@ -13,6 +12,8 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
+
+    Pet = nullptr;
     // 设置播放器按钮图标
     ui->PlayButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     ui->PauseButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
@@ -51,40 +52,43 @@ Widget::Widget(QWidget *parent)
             this, &Widget::UpdateCurrentMusicLabel);
     this->hide();
 
-    Pet=nullptr;
+    connect(MusicPlayer, &MusicPlayerManager::MusicStarted, this, [this]() {
+        if (Pet != nullptr) {
+            Pet->StartListen();
+        }
+    });
+
+    connect(MusicPlayer, &MusicPlayerManager::MusicPaused, this, [this]() {
+        if (Pet != nullptr) {
+            Pet->StopListen();
+        }
+    });
+
+    connect(MusicPlayer, &MusicPlayerManager::MusicStopped, this, [this]() {
+        if (Pet != nullptr) {
+            Pet->StopListen();
+        }
+    });
+
 }
 
 Widget::~Widget()
 {
     delete ui;
 }
-
-
 void Widget::on_PlayButton_clicked()
 {
     MusicPlayer->Play();
-
-    if (Pet != nullptr) {
-        Pet->StartListen();
-    }
 }
 
 void Widget::on_PauseButton_clicked()
 {
     MusicPlayer->Pause();
-
-    if (Pet != nullptr) {
-        Pet->StopListen();
-    }
 }
 
 void Widget::on_StopButton_clicked()
 {
     MusicPlayer->Stop();
-
-    if (Pet != nullptr) {
-        Pet->StopListen();
-    }
 }
 
 void Widget::on_SelectMusicButton_clicked()
@@ -123,13 +127,11 @@ void Widget::on_SelectFolderButton_clicked()
 void Widget::on_PreviousButton_clicked()
 {
     MusicPlayer->PreviousMusic(); // 上一首
-    UpdateCurrentMusicLabel();    // 更新当前歌曲名
 }
 
 void Widget::on_NextButton_clicked()
 {
-    MusicPlayer->NextMusic();  // 下一首
-    UpdateCurrentMusicLabel(); // 更新当前歌曲名
+    MusicPlayer->NextMusic(); // 下一首
 }
 
 void Widget::UpdateCurrentMusicLabel()
@@ -148,13 +150,12 @@ void Widget::UpdateCurrentMusicLabel()
 
 void Widget::on_ForwardButton_clicked()
 {
-    MusicPlayer->Forward();  // 下一首
+    MusicPlayer->Forward();  // 快进
 }
-
 
 void Widget::on_BackwardButton_clicked()
 {
-    MusicPlayer->Backward();  // 下一首
+    MusicPlayer->Backward(); // 快退
 }
 
 
