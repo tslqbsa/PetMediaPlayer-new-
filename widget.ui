@@ -153,6 +153,34 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QSlider" name="ProgressSlider">
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="PlayerStatusIconLabel">
+            <property name="text">
+             <string>⏹</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="TimeLabel">
+            <property name="text">
+             <string>00:00 / 00:00</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QSlider" name="VolumeSlider">
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>

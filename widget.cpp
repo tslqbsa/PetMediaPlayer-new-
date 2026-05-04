@@ -46,6 +46,10 @@ Widget::Widget(QWidget *parent)
     }
 )");
 
+    //初始化进度条
+    CurrentDuration = 0;
+    IsProgressSliderPressed = false;
+
     MusicPlayer = new MusicPlayerManager(this);
 
     connect(MusicPlayer, &MusicPlayerManager::CurrentMusicChanged,
@@ -69,6 +73,48 @@ Widget::Widget(QWidget *parent)
             Pet->StopListen();
         }
     });
+
+    connect(MusicPlayer, &MusicPlayerManager::MusicStarted, this, [this]() {
+        ui->PlayerStatusIconLabel->setText("▶");
+
+        if (Pet != nullptr) {
+            Pet->StartListen();
+        }
+    });
+
+    connect(MusicPlayer, &MusicPlayerManager::MusicPaused, this, [this]() {
+        ui->PlayerStatusIconLabel->setText("⏸");
+
+        if (Pet != nullptr) {
+            Pet->StopListen();
+        }
+    });
+
+    connect(MusicPlayer, &MusicPlayerManager::MusicStopped, this, [this]() {
+        ui->PlayerStatusIconLabel->setText("⏹");
+
+        if (Pet != nullptr) {
+            Pet->StopListen();
+        }
+    });
+
+    connect(MusicPlayer, &MusicPlayerManager::PositionChanged,
+            this, [this](qint64 position) {
+                if (!IsProgressSliderPressed) {
+                    ui->ProgressSlider->setValue(position);
+                }
+
+                ui->TimeLabel->setText(FormatTime(position) + " / " + FormatTime(CurrentDuration));
+            });
+
+    connect(MusicPlayer, &MusicPlayerManager::DurationChanged,
+            this, [this](qint64 duration) {
+                CurrentDuration = duration;
+                ui->ProgressSlider->setMaximum(duration);
+                ui->TimeLabel->setText("00:00 / " + FormatTime(CurrentDuration));
+            });
+
+
 
 }
 
@@ -177,7 +223,25 @@ void Widget::SetPetWidget(PetWidget *petWidget)
 }
 
 
+QString Widget::FormatTime(qint64 ms)
+{
+    int TotalSeconds = ms / 1000;
+    int Minutes = TotalSeconds / 60;
+    int Seconds = TotalSeconds % 60;
 
+    return QString("%1:%2")
+        .arg(Minutes, 2, 10, QChar('0'))
+        .arg(Seconds, 2, 10, QChar('0'));
+}
 
+void Widget::on_ProgressSlider_sliderPressed()
+{
+    IsProgressSliderPressed = true;
+}
 
+void Widget::on_ProgressSlider_sliderReleased()
+{
+    IsProgressSliderPressed = false;
+    MusicPlayer->SetPosition(ui->ProgressSlider->value());
+}
 

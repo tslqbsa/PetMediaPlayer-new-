@@ -47,6 +47,16 @@ MusicPlayerManager::MusicPlayerManager(QObject *parent)
             [](QMediaPlayer::Error error, const QString &errorString) {
                 qDebug() << "播放错误:" << error << errorString;
             });
+
+    connect(Player, &QMediaPlayer::positionChanged, this,
+            [this](qint64 position) {
+                emit PositionChanged(position);
+            });
+
+    connect(Player, &QMediaPlayer::durationChanged, this,
+            [this](qint64 duration) {
+                emit DurationChanged(duration);
+            });
 }
 
 void MusicPlayerManager::SetMusicFile(const QString &filePath)
@@ -247,5 +257,9 @@ QString MusicPlayerManager::GetPlayModeText() const
     }
 
     return "顺序播放";
+}
+void MusicPlayerManager::SetPosition(qint64 position)
+{
+    Player->setPosition(position); // 跳转到指定位置
 }
 

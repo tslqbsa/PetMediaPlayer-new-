@@ -23,6 +23,8 @@ signals:
     void MusicStarted(); // 音乐开始播放
     void MusicPaused();  // 音乐暂停
     void MusicStopped(); // 音乐停止
+    void PositionChanged(qint64 position); // 当前播放位置变化
+    void DurationChanged(qint64 duration); // 音乐总时长变化
 public:
     explicit MusicPlayerManager(QObject *parent = nullptr);
 
@@ -39,6 +41,7 @@ public:
     QString GetCurrentFilePath() const; // 获取当前音乐路径
     void ChangePlayMode(); // 切换播放模式
     QString GetPlayModeText() const; // 获取播放模式
+    void SetPosition(qint64 position); // 设置播放位置
 
 
 private:

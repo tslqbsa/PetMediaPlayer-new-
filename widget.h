@@ -46,6 +46,10 @@ private slots:
     void on_PlayModeButton_clicked();
 
 
+    void on_ProgressSlider_sliderReleased();
+
+    void on_ProgressSlider_sliderPressed();
+
 private:
     Ui::Widget *ui;
 
@@ -56,6 +60,11 @@ private:
     void UpdateCurrentMusicLabel(); // 更新当前歌曲名显示
 
     PetWidget *Pet; // 桌宠对象
+
+    qint64 CurrentDuration; // 当前音乐总时长
+    QString FormatTime(qint64 ms); // 格式化时间
+
+    bool IsProgressSliderPressed; // 是否正在拖动进度条
 };
 
 #endif // WIDGET_H
