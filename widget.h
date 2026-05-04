@@ -65,6 +65,7 @@ private:
     QString FormatTime(qint64 ms); // 格式化时间
 
     bool IsProgressSliderPressed; // 是否正在拖动进度条
+    QString LastLyric; // 上一次显示的歌词
 };
 
 #endif // WIDGET_H

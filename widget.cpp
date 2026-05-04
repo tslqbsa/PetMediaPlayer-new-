@@ -50,6 +50,8 @@ Widget::Widget(QWidget *parent)
     CurrentDuration = 0;
     IsProgressSliderPressed = false;
 
+    LastLyric = "";
+
     MusicPlayer = new MusicPlayerManager(this);
 
     connect(MusicPlayer, &MusicPlayerManager::CurrentMusicChanged,
@@ -104,7 +106,16 @@ Widget::Widget(QWidget *parent)
                     ui->ProgressSlider->setValue(position);
                 }
 
-                ui->TimeLabel->setText(FormatTime(position) + " / " + FormatTime(CurrentDuration));
+                ui->TimeLabel->setText(
+                    FormatTime(position) + " / " + FormatTime(CurrentDuration)
+                    );
+
+                QString lyric = MusicPlayer->GetCurrentLyric(position);
+
+                if (!lyric.isEmpty() && lyric != LastLyric && Pet != nullptr) {
+                    LastLyric = lyric;
+                    Pet->ShowLyric(lyric);
+                }
             });
 
     connect(MusicPlayer, &MusicPlayerManager::DurationChanged,

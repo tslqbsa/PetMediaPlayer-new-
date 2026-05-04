@@ -21,13 +21,21 @@ TalkBubble::TalkBubble(QWidget *parent):
         "曼波~"
     };
     hide();
+    HideTimer = new QTimer(this);
+    HideTimer->setSingleShot(true);
+
+    connect(HideTimer, &QTimer::timeout, this, &QLabel::hide);
 }
 //对话框设置
-void TalkBubble::ShowText(const QString& text,int interval){
+void TalkBubble::ShowText(const QString& text, int interval)
+{
+    HideTimer->stop(); // 关键：取消上一次隐藏任务
+
     setText(text);
     adjustSize();
     show();
-    QTimer::singleShot(interval, this, &QLabel::hide);
+
+    HideTimer->start(interval);
 }
 //随机对话
 void TalkBubble::ShowRandomText(int interval)

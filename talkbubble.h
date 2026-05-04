@@ -17,5 +17,6 @@ public:
 
 private:
     QStringList Words;
+    QTimer *HideTimer; // 控制气泡隐藏
 };
 #endif // TALKBUBBLE_H

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QList>
+#include "lyricmanager.h"
 
 class QMediaPlayer;
 class QAudioOutput;
@@ -42,6 +43,7 @@ public:
     void ChangePlayMode(); // 切换播放模式
     QString GetPlayModeText() const; // 获取播放模式
     void SetPosition(qint64 position); // 设置播放位置
+    QString GetCurrentLyric(qint64 position) const;// 获取歌词
 
 
 private:
@@ -52,6 +54,7 @@ private:
     PlayMode CurrentPlayMode; // 当前播放模式
     QList<int> PlayHistory; // 播放历史
     QString CurrentFilePath; // 当前音乐文件路径
+    LyricManager Lyric;//歌词
 };
 
 #endif // MUSICPLAYERMANAGER_H

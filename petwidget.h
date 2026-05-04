@@ -38,6 +38,7 @@ public:
     void OpenControlPanel();
     void StartListen(); // 进入听歌状态
     void StopListen();  // 退出听歌状态
+    void ShowLyric(const QString &text); // 显示歌词气泡
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

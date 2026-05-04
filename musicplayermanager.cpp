@@ -64,6 +64,7 @@ void MusicPlayerManager::SetMusicFile(const QString &filePath)
     qDebug() << "加载文件:" << filePath;
 
     CurrentFilePath = filePath; // 记录当前音乐文件
+    Lyric.LoadLyrics(filePath);
 
     Player->stop();
     Player->setSource(QUrl::fromLocalFile(filePath));
@@ -263,3 +264,7 @@ void MusicPlayerManager::SetPosition(qint64 position)
     Player->setPosition(position); // 跳转到指定位置
 }
 
+QString MusicPlayerManager::GetCurrentLyric(qint64 position) const
+{
+    return Lyric.GetCurrentLyric(position);
+}
