@@ -13,6 +13,8 @@ class Widget;
 }
 QT_END_NAMESPACE
 
+class PlaylistWindow;
+
 class Widget : public QWidget
 {
     Q_OBJECT
@@ -51,6 +53,8 @@ private slots:
 
     void on_ProgressSlider_sliderPressed();
 
+    void on_PlaylistButton_clicked();
+
 private:
     Ui::Widget *ui;
 
@@ -72,6 +76,8 @@ private:
     void UpdateLyricHighlight(int CurrentIndex); // 更新歌词高亮
 
     int LastLyricIndex = -1;
+
+    PlaylistWindow *Playlist;
 };
 
 #endif // WIDGET_H

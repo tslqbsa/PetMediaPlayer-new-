@@ -91,6 +91,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QToolButton" name="PlaylistButton">
+            <property name="text">
+             <string>播放列表</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>

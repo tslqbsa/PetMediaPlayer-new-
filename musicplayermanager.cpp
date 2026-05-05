@@ -280,3 +280,23 @@ int MusicPlayerManager::GetCurrentLyricIndex(qint64 position) const
 {
     return Lyric.GetCurrentLyricIndex(position);
 }
+QStringList MusicPlayerManager::GetMusicList() const
+{
+    return MusicList;
+}
+void MusicPlayerManager::PlayMusicByIndex(int index)
+{
+    if (index < 0 || index >= MusicList.size()) {
+        qDebug() << "播放下标越界:" << index;
+        return;
+    }
+
+    if (CurrentIndex >= 0 && CurrentIndex != index) {
+        PlayHistory.append(CurrentIndex); // 加入回退历史
+    }
+
+    CurrentIndex = index;
+
+    SetMusicFile(MusicList[CurrentIndex]);
+    Play();
+}

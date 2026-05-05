@@ -332,11 +332,5 @@ void PetWidget::StopListen()
 }
 void PetWidget::ShowLyric(const QString &text, int duration)
 {
-    // 让气泡始终在宠物头部上方
-    int x = (width() - Bubble->width()) / 2;
-    int y = PetLabel->y() - Bubble->height() + 10;
-
-    Bubble->move(x, y);
-
     Bubble->ShowText(text, duration);
 }

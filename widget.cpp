@@ -3,6 +3,7 @@
 #include "./ui_widget.h"
 #include "uistylehelper.h"
 #include "petwidget.h"
+#include "playlistwindow.h"
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QStyle>
@@ -67,6 +68,10 @@ Widget::Widget(QWidget *parent)
                 LastLyricIndex = -1;
 
                 UpdateLyricList();
+
+                if (Playlist != nullptr) {
+                    Playlist->SetCurrentMusicPath(MusicPlayer->GetCurrentFilePath());
+                }
             });
     this->hide();
 
@@ -141,8 +146,21 @@ Widget::Widget(QWidget *parent)
                 ui->TimeLabel->setText("00:00 / " + FormatTime(CurrentDuration));
             });
 
+    //初始化列表
+    Playlist = new PlaylistWindow(nullptr);
+    Playlist->hide();
 
-
+    connect(Playlist, &PlaylistWindow::MusicDoubleClicked,
+            this, [this](int Index) {
+                MusicPlayer->PlayMusicByIndex(Index);
+            });
+    connect(Playlist, &PlaylistWindow::BackRequested,
+            this, [this]() {
+                Playlist->hide();
+                this->show();
+                this->raise();
+                this->activateWindow();
+            });
 }
 
 Widget::~Widget()
@@ -195,6 +213,8 @@ void Widget::on_SelectFolderButton_clicked()
     CurrentFolderPath = FolderPath;          // 记录当前文件夹
     MusicPlayer->SetMusicFolder(FolderPath); // 读取文件夹歌曲
     UpdateCurrentMusicLabel();               // 更新当前歌曲名
+
+    Playlist->SetMusicList(MusicPlayer->GetMusicList());
 }
 
 void Widget::on_PreviousButton_clicked()
@@ -331,3 +351,16 @@ void Widget::UpdateLyricHighlight(int CurrentIndex)
         QAbstractItemView::PositionAtCenter
         );
 }
+
+void Widget::on_PlaylistButton_clicked()
+{
+    Playlist->SetMusicList(MusicPlayer->GetMusicList());
+    Playlist->SetCurrentMusicPath(MusicPlayer->GetCurrentFilePath());
+
+    Playlist->show();
+    Playlist->raise();
+    Playlist->activateWindow();
+
+    this->hide();
+}
+

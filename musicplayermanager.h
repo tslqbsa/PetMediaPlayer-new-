@@ -47,6 +47,8 @@ public:
     qint64 GetNextLyricTime(qint64 position) const; //获取歌词时间
     QList<LyricLine> GetAllLyrics() const; // 获取全部歌词
     int GetCurrentLyricIndex(qint64 position) const; // 获取当前歌词下标
+    QStringList GetMusicList() const;//获取音乐列表
+    void PlayMusicByIndex(int index); // 根据下标播放歌曲
 
 
 private:
