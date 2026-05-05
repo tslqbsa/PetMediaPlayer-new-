@@ -268,3 +268,15 @@ QString MusicPlayerManager::GetCurrentLyric(qint64 position) const
 {
     return Lyric.GetCurrentLyric(position);
 }
+qint64 MusicPlayerManager::GetNextLyricTime(qint64 position) const
+{
+    return Lyric.GetNextLyricTime(position);
+}
+QList<LyricLine> MusicPlayerManager::GetAllLyrics() const
+{
+    return Lyric.GetAllLyrics();
+}
+int MusicPlayerManager::GetCurrentLyricIndex(qint64 position) const
+{
+    return Lyric.GetCurrentLyricIndex(position);
+}

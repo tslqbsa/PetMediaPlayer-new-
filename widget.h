@@ -66,6 +66,8 @@ private:
 
     bool IsProgressSliderPressed; // 是否正在拖动进度条
     QString LastLyric; // 上一次显示的歌词
+
+    void UpdateLyricList(); // 更新歌词列表
 };
 
 #endif // WIDGET_H

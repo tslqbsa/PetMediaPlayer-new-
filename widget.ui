@@ -181,6 +181,13 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QListWidget" name="LyricListWidget"/>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QSlider" name="VolumeSlider">
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>

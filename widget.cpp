@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QStyle>
+#include <QAbstractItemView>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -55,7 +56,10 @@ Widget::Widget(QWidget *parent)
     MusicPlayer = new MusicPlayerManager(this);
 
     connect(MusicPlayer, &MusicPlayerManager::CurrentMusicChanged,
-            this, &Widget::UpdateCurrentMusicLabel);
+            this, [this]() {
+                UpdateCurrentMusicLabel();
+                UpdateLyricList();
+            });
     this->hide();
 
     connect(MusicPlayer, &MusicPlayerManager::MusicStarted, this, [this]() {
@@ -113,8 +117,30 @@ Widget::Widget(QWidget *parent)
                 QString lyric = MusicPlayer->GetCurrentLyric(position);
 
                 if (!lyric.isEmpty() && lyric != LastLyric && Pet != nullptr) {
+
                     LastLyric = lyric;
-                    Pet->ShowLyric(lyric);
+
+                    qint64 nextTime = MusicPlayer->GetNextLyricTime(position);
+
+                    int duration = 4000; // 默认
+
+                    if (nextTime > 0) {
+                        duration = nextTime - position;
+
+                        if (duration < 1000) duration = 1000; // 最短1秒
+                        if (duration > 8000) duration = 8000; // 最长8秒
+                    }
+
+                    Pet->ShowLyric(lyric, duration);
+                }
+                int LyricIndex = MusicPlayer->GetCurrentLyricIndex(position);
+
+                if (LyricIndex >= 0 && LyricIndex < ui->LyricListWidget->count()) {
+                    ui->LyricListWidget->setCurrentRow(LyricIndex);
+                    ui->LyricListWidget->scrollToItem(
+                        ui->LyricListWidget->item(LyricIndex),
+                        QAbstractItemView::PositionAtCenter
+                        );
                 }
             });
 
@@ -254,5 +280,16 @@ void Widget::on_ProgressSlider_sliderReleased()
 {
     IsProgressSliderPressed = false;
     MusicPlayer->SetPosition(ui->ProgressSlider->value());
+}
+
+void Widget::UpdateLyricList()
+{
+    ui->LyricListWidget->clear();
+
+    QList<LyricLine> Lyrics = MusicPlayer->GetAllLyrics();
+
+    for (const LyricLine &Line : Lyrics) {
+        ui->LyricListWidget->addItem(Line.text);
+    }
 }
 

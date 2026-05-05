@@ -57,3 +57,27 @@ QString LyricManager::GetCurrentLyric(qint64 position) const
     }
     return "";
 }
+
+qint64 LyricManager::GetNextLyricTime(qint64 position) const
+{
+    for (int i = 0; i < Lyrics.size(); ++i) {
+        if (position < Lyrics[i].time) {
+            return Lyrics[i].time;
+        }
+    }
+    return -1; // 没有下一句
+}
+QList<LyricLine> LyricManager::GetAllLyrics() const
+{
+    return Lyrics;
+}
+int LyricManager::GetCurrentLyricIndex(qint64 position) const
+{
+    for (int i = Lyrics.size() - 1; i >= 0; --i) {
+        if (position >= Lyrics[i].time) {
+            return i;
+        }
+    }
+
+    return -1;
+}

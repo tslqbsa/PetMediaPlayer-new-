@@ -44,6 +44,9 @@ public:
     QString GetPlayModeText() const; // 获取播放模式
     void SetPosition(qint64 position); // 设置播放位置
     QString GetCurrentLyric(qint64 position) const;// 获取歌词
+    qint64 GetNextLyricTime(qint64 position) const; //获取歌词时间
+    QList<LyricLine> GetAllLyrics() const; // 获取全部歌词
+    int GetCurrentLyricIndex(qint64 position) const; // 获取当前歌词下标
 
 
 private:

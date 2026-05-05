@@ -277,7 +277,7 @@ void PetWidget::StopListen()
     IsListening = false;
     ChangeState(PetState::Idle);
 }
-void PetWidget::ShowLyric(const QString &text)
+void PetWidget::ShowLyric(const QString &text, int duration)
 {
-    Bubble->ShowText(text, 8000); // 用已有气泡显示歌词
+    Bubble->ShowText(text, duration);
 }
