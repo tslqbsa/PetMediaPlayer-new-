@@ -6,7 +6,16 @@
 class UIStyleHelper
 {
 public:
-    static QString GetToolButtonStyle(); // 获取播放器按钮样式
+    static QString GetToolButtonStyle();
+    static QString GetMainWindowStyle();
+    static QString GetLyricListStyle();
+    static QString GetSliderStyle();
+    static QString GetPushButtonStyle();
+    static QString GetPlaylistWindowStyle();
+    static QString GetPlaylistBackButtonStyle();
+    static QString GetPlaylistTitleLabelStyle();
+    static QString GetPlaylistSearchEditStyle();
+    static QString GetPlaylistListStyle();
 };
 
 #endif // UISTYLEHELPER_H

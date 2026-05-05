@@ -19,6 +19,19 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    this->setStyleSheet(UIStyleHelper::GetMainWindowStyle());
+
+    ui->LyricListWidget->setStyleSheet(UIStyleHelper::GetLyricListStyle());
+    ui->LyricListWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->LyricListWidget->setWordWrap(true);
+    ui->LyricListWidget->setTextElideMode(Qt::ElideNone);
+
+    // 歌词列表滚动更顺滑
+    ui->LyricListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    // 歌词尺寸变化时自动调整
+    ui->LyricListWidget->setResizeMode(QListView::Adjust);
+
     Pet = nullptr;
     // 设置播放器按钮图标
     ui->PlayButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
@@ -51,6 +64,13 @@ Widget::Widget(QWidget *parent)
         font-weight: bold;
     }
 )");
+
+    QString PushButtonStyle = UIStyleHelper::GetPushButtonStyle();
+
+    ui->SelectMusicButton->setStyleSheet(PushButtonStyle);
+    ui->SelectFolderButton->setStyleSheet(PushButtonStyle);
+    ui->PlayModeButton->setStyleSheet(PushButtonStyle);
+    ui->PlaylistButton->setStyleSheet(PushButtonStyle);
 
     //初始化进度条
     CurrentDuration = 0;

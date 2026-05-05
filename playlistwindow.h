@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 #include <QCloseEvent>
 #include <QLabel>
+#include <QLineEdit>
 
 class PlaylistWindow : public QWidget
 {
@@ -33,6 +34,9 @@ private:
     void InitUi();
 
     QLabel *TitleLabel;
+
+    QLineEdit *SearchLineEdit;
+    void UpdateMusicListByKeyword(const QString &Keyword);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
