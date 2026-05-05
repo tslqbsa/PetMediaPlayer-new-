@@ -65,6 +65,12 @@ private:
     // 拖动位置
     QPoint DragPosition;
 
+    // 拖动
+    bool IsDragging = false;
+
+    // 鼠标按下时的全局位置
+    QPoint PressGlobalPosition;
+
     // 设置图片
     void SetPetImage(const QString &path);
 
@@ -76,6 +82,13 @@ private:
 
     // 是否处于听歌模式
     bool IsListening;
+
+    // 听歌摇摆定时器
+    QTimer *ListenMoveTimer;
+    // 摇摆方向
+    bool ListenMoveDirection;
+    // 摇摆基准位置
+    QPoint ListenBasePosition;
 };
 
 #endif // PETWIDGET_H

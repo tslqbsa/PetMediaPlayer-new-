@@ -13,7 +13,7 @@ PetWidget::PetWidget(QWidget *parent)
     // 初始化窗口
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
-    this->resize(300, 300);
+    this->resize(420, 360);
 
     PetLabel = new QLabel(this);
 
@@ -29,7 +29,7 @@ PetWidget::PetWidget(QWidget *parent)
 
     // 初始化对话框
     Bubble = new TalkBubble(this);
-    Bubble->move(80, 20);
+    Bubble->move(45, 55);
     Bubble->hide();
 
     // 初始化托盘
@@ -48,6 +48,11 @@ PetWidget::PetWidget(QWidget *parent)
     });
 
     connect(TimerManager, &PetTimerManager::AngryTimeout, this, [this]() {
+        if (CurrentState == PetState::Drag ||
+            CurrentState == PetState::ListenDrag) {
+            return;
+        }
+
         if (IsListening) {
             ChangeState(PetState::ListenIdle);
         }
@@ -57,8 +62,8 @@ PetWidget::PetWidget(QWidget *parent)
     });
 
     connect(TimerManager, &PetTimerManager::TalkTimeout, this, [this]() {
-        // 只有待机状态才随机说话
-        if (CurrentState == PetState::Idle) {
+        // 听歌时不随机说话，避免打断歌词
+        if (!IsListening && CurrentState == PetState::Idle) {
             Bubble->ShowRandomText(2000);
         }
 
@@ -78,6 +83,16 @@ PetWidget::PetWidget(QWidget *parent)
     TimerManager->StartIdleAnimation();
     TimerManager->StartRandomTalk();
     TimerManager->ResetSleepTimer();
+
+    //初始化动画
+    ListenMoveTimer = new QTimer(this);
+    ListenMoveDirection = false;
+
+    connect(ListenMoveTimer, &QTimer::timeout, this, [this]() {
+        int offset = ListenMoveDirection ? 3 : -3;
+        move(ListenBasePosition.x() + offset, ListenBasePosition.y());
+        ListenMoveDirection = !ListenMoveDirection;
+    });
 }
 
 void PetWidget::OpenControlPanel()
@@ -147,7 +162,14 @@ void PetWidget::mousePressEvent(QMouseEvent *event)
         // 有操作就重置睡眠计时
         TimerManager->ResetSleepTimer();
 
+        // 记录鼠标按下时的位置
+        PressGlobalPosition = event->globalPosition().toPoint();
+
+        // 记录鼠标相对窗口左上角的位置，用于拖动
         DragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
+
+        // 一开始不认为是拖动
+        IsDragging = false;
 
         // 如果正在睡觉，点击只负责唤醒
         if (CurrentState == PetState::Sleep) {
@@ -155,24 +177,30 @@ void PetWidget::mousePressEvent(QMouseEvent *event)
             Bubble->ShowText("醒啦...", 1000);
             return;
         }
-
-        // 随机台词
-        Bubble->ShowRandomText(1000);
-
-        // 点击时进入生气状态
-        // 听歌状态下进入听歌生气
-        if (IsListening) {
-            ChangeState(PetState::ListenAngry);
-        }
-        else {
-            ChangeState(PetState::Angry);
-        }
     }
 }
 
 void PetWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
+
+        // 计算鼠标从按下到现在移动了多远
+        int MoveDistance =
+            (event->globalPosition().toPoint() - PressGlobalPosition).manhattanLength();
+
+        // 移动距离超过 6，才认为是真的拖动
+        if (MoveDistance > 6) {
+            IsDragging = true;
+        }
+
+        // 如果还没达到拖动阈值，不移动桌宠
+        if (!IsDragging) {
+            return;
+        }
+
+        // 开始拖动时关闭摇摆动画
+        ListenMoveTimer->stop();
+
         if (CurrentState != PetState::Drag &&
             CurrentState != PetState::ListenDrag) {
 
@@ -192,15 +220,34 @@ void PetWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 
-    if (CurrentState == PetState::Drag ||
-        CurrentState == PetState::ListenDrag) {
-
+    // 如果刚才发生了拖动，松手后恢复状态
+    if (IsDragging) {
         if (IsListening) {
+            ListenBasePosition = pos(); // 更新听歌摇摆基准位置
             ChangeState(PetState::ListenIdle);
+            ListenMoveTimer->start(300);
         }
         else {
             ChangeState(PetState::Idle);
         }
+
+        IsDragging = false;
+        return;
+    }
+
+    // 如果没有拖动，说明这是一次普通点击
+
+    // 随机台词
+    if (!IsListening) {
+        Bubble->ShowRandomText(1000);
+    }
+
+    // 点击时进入生气状态
+    if (IsListening) {
+        ChangeState(PetState::ListenAngry);
+    }
+    else {
+        ChangeState(PetState::Angry);
     }
 }
 
@@ -229,13 +276,6 @@ void PetWidget::contextMenuEvent(QContextMenuEvent *event)
     else if (selected == HideAction) {
         this->hide();
     }
-    else if (selected == SleepAction) {
-        ChangeState(PetState::Sleep);
-    }
-    else if (selected == WakeAction) {
-        ChangeState(PetState::Idle);
-        TimerManager->ResetSleepTimer();
-    }
     else if (selected == QuitAction) {
         QApplication::quit();
     }
@@ -243,11 +283,20 @@ void PetWidget::contextMenuEvent(QContextMenuEvent *event)
         OpenControlPanel();
     }
     else if (selected == SleepAction) {
+        if (ControlPanel != nullptr) {
+            ControlPanel->PauseMusic();
+        }
+
         IsListening = false;
+        ListenMoveTimer->stop();
+        Bubble->hide();
+
         ChangeState(PetState::Sleep);
     }
     else if (selected == WakeAction) {
         IsListening = false;
+        ListenMoveTimer->stop();
+
         ChangeState(PetState::Idle);
         TimerManager->ResetSleepTimer();
     }
@@ -269,15 +318,25 @@ void PetWidget::Wake()
 void PetWidget::StartListen()
 {
     IsListening = true;
+    ListenBasePosition = pos();
+    ListenMoveTimer->start(300);
     ChangeState(PetState::ListenIdle);
 }
 
 void PetWidget::StopListen()
 {
     IsListening = false;
+    ListenMoveTimer->stop();
+    move(ListenBasePosition);
     ChangeState(PetState::Idle);
 }
 void PetWidget::ShowLyric(const QString &text, int duration)
 {
+    // 让气泡始终在宠物头部上方
+    int x = (width() - Bubble->width()) / 2;
+    int y = PetLabel->y() - Bubble->height() + 10;
+
+    Bubble->move(x, y);
+
     Bubble->ShowText(text, duration);
 }

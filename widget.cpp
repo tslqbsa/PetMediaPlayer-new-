@@ -7,6 +7,10 @@
 #include <QFileInfo>
 #include <QStyle>
 #include <QAbstractItemView>
+#include <QListWidgetItem>
+#include <QBrush>
+#include <QFont>
+#include <QColor>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -58,27 +62,13 @@ Widget::Widget(QWidget *parent)
     connect(MusicPlayer, &MusicPlayerManager::CurrentMusicChanged,
             this, [this]() {
                 UpdateCurrentMusicLabel();
+
+                LastLyric = "";
+                LastLyricIndex = -1;
+
                 UpdateLyricList();
             });
     this->hide();
-
-    connect(MusicPlayer, &MusicPlayerManager::MusicStarted, this, [this]() {
-        if (Pet != nullptr) {
-            Pet->StartListen();
-        }
-    });
-
-    connect(MusicPlayer, &MusicPlayerManager::MusicPaused, this, [this]() {
-        if (Pet != nullptr) {
-            Pet->StopListen();
-        }
-    });
-
-    connect(MusicPlayer, &MusicPlayerManager::MusicStopped, this, [this]() {
-        if (Pet != nullptr) {
-            Pet->StopListen();
-        }
-    });
 
     connect(MusicPlayer, &MusicPlayerManager::MusicStarted, this, [this]() {
         ui->PlayerStatusIconLabel->setText("▶");
@@ -135,12 +125,12 @@ Widget::Widget(QWidget *parent)
                 }
                 int LyricIndex = MusicPlayer->GetCurrentLyricIndex(position);
 
-                if (LyricIndex >= 0 && LyricIndex < ui->LyricListWidget->count()) {
-                    ui->LyricListWidget->setCurrentRow(LyricIndex);
-                    ui->LyricListWidget->scrollToItem(
-                        ui->LyricListWidget->item(LyricIndex),
-                        QAbstractItemView::PositionAtCenter
-                        );
+                if (LyricIndex != LastLyricIndex &&
+                    LyricIndex >= 0 &&
+                    LyricIndex < ui->LyricListWidget->count()) {
+
+                    LastLyricIndex = LyricIndex;
+                    UpdateLyricHighlight(LyricIndex);
                 }
             });
 
@@ -288,8 +278,56 @@ void Widget::UpdateLyricList()
 
     QList<LyricLine> Lyrics = MusicPlayer->GetAllLyrics();
 
+    if (Lyrics.isEmpty()) {
+        QListWidgetItem *Item = new QListWidgetItem("暂无歌词");
+        Item->setTextAlignment(Qt::AlignCenter);
+        Item->setForeground(QBrush(QColor(150, 150, 150)));
+        Item->setFont(QFont("Microsoft YaHei", 12));
+
+        ui->LyricListWidget->addItem(Item);
+        return;
+    }
+
     for (const LyricLine &Line : Lyrics) {
-        ui->LyricListWidget->addItem(Line.text);
+        QListWidgetItem *Item = new QListWidgetItem(Line.text);
+
+        Item->setTextAlignment(Qt::AlignCenter);
+        Item->setForeground(QBrush(QColor(120, 120, 120)));
+        Item->setFont(QFont("Microsoft YaHei", 9));
+
+        ui->LyricListWidget->addItem(Item);
     }
 }
 
+void Widget::PauseMusic()
+{
+    MusicPlayer->Pause();
+}
+
+void Widget::UpdateLyricHighlight(int CurrentIndex)
+{
+    for (int i = 0; i < ui->LyricListWidget->count(); ++i) {
+        QListWidgetItem *Item = ui->LyricListWidget->item(i);
+
+        if (i == CurrentIndex) {
+            Item->setTextAlignment(Qt::AlignCenter);
+            Item->setForeground(QBrush(Qt::white));
+            Item->setFont(QFont("Microsoft YaHei", 12, QFont::Bold));
+        }
+        else if (qAbs(i - CurrentIndex) <= 2) {
+            Item->setTextAlignment(Qt::AlignCenter);
+            Item->setForeground(QBrush(QColor(180, 180, 180)));
+            Item->setFont(QFont("Microsoft YaHei", 10));
+        }
+        else {
+            Item->setTextAlignment(Qt::AlignCenter);
+            Item->setForeground(QBrush(QColor(120, 120, 120)));
+            Item->setFont(QFont("Microsoft YaHei", 9));
+        }
+    }
+
+    ui->LyricListWidget->scrollToItem(
+        ui->LyricListWidget->item(CurrentIndex),
+        QAbstractItemView::PositionAtCenter
+        );
+}

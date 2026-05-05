@@ -21,6 +21,7 @@ public:
     explicit Widget(QWidget *parent = nullptr);
     ~Widget();
     void SetPetWidget(PetWidget *petWidget); // 设置桌宠对象
+    void PauseMusic(); // 暂停音乐
 
 private slots:
     void on_SelectMusicButton_clicked();
@@ -68,6 +69,9 @@ private:
     QString LastLyric; // 上一次显示的歌词
 
     void UpdateLyricList(); // 更新歌词列表
+    void UpdateLyricHighlight(int CurrentIndex); // 更新歌词高亮
+
+    int LastLyricIndex = -1;
 };
 
 #endif // WIDGET_H

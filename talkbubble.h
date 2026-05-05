@@ -14,6 +14,7 @@ public:
 
     void ShowText(const QString &text, int interval = 2000);
     void ShowRandomText(int interval = 1000);
+    QString CurrentText; // 当前显示内容
 
 private:
     QStringList Words;
