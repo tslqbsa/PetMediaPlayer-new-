@@ -1,3 +1,4 @@
+
 #include "playlistwindow.h"
 #include "uistylehelper.h"
 

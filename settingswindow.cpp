@@ -117,7 +117,7 @@ void SettingsWindow::InitConnections()
 }
 void SettingsWindow::LoadSettings()
 {
-    QSettings Settings("LinXuanyu", "PetMediaPlayer");
+    QSettings Settings("PetMediaPlayer", "PetMediaPlayer");
 
     LyricBubbleCheckBox->setChecked(Settings.value("LyricBubbleVisible", true).toBool());
     AlwaysOnTopCheckBox->setChecked(Settings.value("AlwaysOnTop", true).toBool());
@@ -132,7 +132,7 @@ void SettingsWindow::LoadSettings()
 }
 void SettingsWindow::SaveSettings()
 {
-    QSettings Settings("LinXuanyu", "PetMediaPlayer");
+    QSettings Settings("PetMediaPlayer", "PetMediaPlayer");
 
     Settings.setValue("LyricBubbleVisible", LyricBubbleCheckBox->isChecked());
     Settings.setValue("AlwaysOnTop", AlwaysOnTopCheckBox->isChecked());

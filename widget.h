@@ -58,6 +58,8 @@ private slots:
 
     void on_SettingsButton_clicked();
 
+
+
 private:
     Ui::Widget *ui;
 

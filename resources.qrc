@@ -9,5 +9,6 @@
         <file>resources/images/drag.png</file>
         <file>resources/images/sleep.png</file>
         <file>resources/images/listendrag.png</file>
+        <file>resources/images/tray.png</file>
     </qresource>
 </RCC>

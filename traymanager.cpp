@@ -11,7 +11,7 @@ TrayManager::TrayManager(PetWidget *petWidget, QObject *parent)
     // 创建托盘图标
     TrayIcon = new QSystemTrayIcon(this);
 
-    TrayIcon->setIcon(QIcon(":/resources/images/quiet.png"));
+    TrayIcon->setIcon(QIcon(":/resources/images/tray.png"));
 
     // 创建菜单
     TrayMenu = new QMenu();
@@ -20,7 +20,7 @@ TrayManager::TrayManager(PetWidget *petWidget, QObject *parent)
     HideAction = new QAction("隐藏桌宠", this);
     SleepAction = new QAction("睡觉", this);
     WakeAction = new QAction("唤醒", this);
-    SettingAction = new QAction("设置", this);
+    SettingAction = new QAction("菜单", this);
     QuitAction = new QAction("退出", this);
 
     TrayMenu->addAction(ShowAction);

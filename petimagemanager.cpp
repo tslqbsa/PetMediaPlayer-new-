@@ -1,3 +1,4 @@
+
 #include "petimagemanager.h"
 
 PetImageManager::PetImageManager()

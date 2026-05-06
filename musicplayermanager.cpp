@@ -1,3 +1,4 @@
+
 #include "musicplayermanager.h"
 
 #include <QMediaPlayer>
@@ -13,8 +14,6 @@ MusicPlayerManager::MusicPlayerManager(QObject *parent)
     AudioOutput = new QAudioOutput(this); // 创建音频输出
 
     Player->setAudioOutput(AudioOutput);  // 连接音频输出
-
-    AudioOutput->setVolume(0.0);          // 默认音量 0%
 
     CurrentIndex = -1; // 当前默认没有歌曲
     CurrentPlayMode = PlayMode::Sequential; // 默认顺序播放
@@ -299,4 +298,16 @@ void MusicPlayerManager::PlayMusicByIndex(int index)
 
     SetMusicFile(MusicList[CurrentIndex]);
     Play();
+}
+void MusicPlayerManager::SetCurrentIndexByFilePath(const QString &filePath)
+{
+    int Index = MusicList.indexOf(filePath);
+
+    if (Index == -1) {
+        qDebug() << "上次播放歌曲不在当前文件夹中:" << filePath;
+        return;
+    }
+
+    CurrentIndex = Index;
+    SetMusicFile(MusicList[CurrentIndex]);
 }

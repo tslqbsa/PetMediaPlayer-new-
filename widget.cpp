@@ -13,12 +13,13 @@
 #include <QFont>
 #include <QColor>
 #include <QSettings>
-
+#include <QDir>
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
+    resize(380,360);
 
     this->setStyleSheet(UIStyleHelper::GetMainWindowStyle());
 
@@ -44,6 +45,12 @@ Widget::Widget(QWidget *parent)
 
     ui->BackwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
     ui->ForwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
+
+    ui->PlayerStatusIconLabel->clear();
+    ui->PlayerStatusIconLabel->setAlignment(Qt::AlignCenter);
+    ui->PlayerStatusIconLabel->setPixmap(
+        style()->standardIcon(QStyle::SP_MediaStop).pixmap(24, 24)
+        );
     //图标风格
     QString ButtonStyle = UIStyleHelper::GetToolButtonStyle();
     ui->PlayButton->setStyleSheet(ButtonStyle);
@@ -84,6 +91,8 @@ Widget::Widget(QWidget *parent)
     connect(MusicPlayer, &MusicPlayerManager::CurrentMusicChanged,
             this, [this]() {
                 UpdateCurrentMusicLabel();
+                QSettings Settings("PetMediaPlayer", "PetMediaPlayer");
+                Settings.setValue("LastMusicPath", MusicPlayer->GetCurrentFilePath());
 
                 LastLyric = "";
                 LastLyricIndex = -1;
@@ -97,7 +106,9 @@ Widget::Widget(QWidget *parent)
     this->hide();
 
     connect(MusicPlayer, &MusicPlayerManager::MusicStarted, this, [this]() {
-        ui->PlayerStatusIconLabel->setText("▶");
+        ui->PlayerStatusIconLabel->setPixmap(
+            style()->standardIcon(QStyle::SP_MediaPlay).pixmap(24, 24)
+            );
 
         if (Pet != nullptr) {
             Pet->StartListen();
@@ -105,7 +116,9 @@ Widget::Widget(QWidget *parent)
     });
 
     connect(MusicPlayer, &MusicPlayerManager::MusicPaused, this, [this]() {
-        ui->PlayerStatusIconLabel->setText("⏸");
+        ui->PlayerStatusIconLabel->setPixmap(
+            style()->standardIcon(QStyle::SP_MediaPause).pixmap(24, 24)
+            );
 
         if (Pet != nullptr) {
             Pet->StopListen();
@@ -113,7 +126,9 @@ Widget::Widget(QWidget *parent)
     });
 
     connect(MusicPlayer, &MusicPlayerManager::MusicStopped, this, [this]() {
-        ui->PlayerStatusIconLabel->setText("⏹");
+        ui->PlayerStatusIconLabel->setPixmap(
+            style()->standardIcon(QStyle::SP_MediaStop).pixmap(24, 24)
+            );
 
         if (Pet != nullptr) {
             Pet->StopListen();
@@ -246,7 +261,8 @@ void Widget::on_SelectMusicButton_clicked()
         this,
         "选择音乐",
         CurrentFolderPath,
-        "Music Files (*.mp3 *.wav)"
+        "Music Files (*.mp"
+        " *.wav)"
         );
 
     if (FilePath.isEmpty()) {
@@ -268,9 +284,13 @@ void Widget::on_SelectFolderButton_clicked()
         return;
     }
 
-    CurrentFolderPath = FolderPath;          // 记录当前文件夹
-    MusicPlayer->SetMusicFolder(FolderPath); // 读取文件夹歌曲
-    UpdateCurrentMusicLabel();               // 更新当前歌曲名
+    CurrentFolderPath = FolderPath;
+
+    QSettings Settings("PetMediaPlayer", "PetMediaPlayer");
+    Settings.setValue("LastMusicFolder", CurrentFolderPath);
+
+    MusicPlayer->SetMusicFolder(FolderPath);
+    UpdateCurrentMusicLabel();
 
     Playlist->SetMusicList(MusicPlayer->GetMusicList());
 }
@@ -325,7 +345,6 @@ void Widget::on_PlayModeButton_clicked()
 void Widget::SetPetWidget(PetWidget *petWidget)
 {
     Pet = petWidget;
-    LoadSettings();
 }
 
 
@@ -436,7 +455,7 @@ void Widget::on_SettingsButton_clicked()
 }
 void Widget::LoadSettings()
 {
-    QSettings Settings("LinXuanyu", "PetMediaPlayer");
+    QSettings Settings("PetMediaPlayer", "PetMediaPlayer");
 
     bool LyricBubbleVisible = Settings.value("LyricBubbleVisible", true).toBool();
     int PetOpacity = Settings.value("PetOpacity", 100).toInt();
@@ -451,9 +470,30 @@ void Widget::LoadSettings()
         Pet->SetAlwaysOnTop(AlwaysOnTop);
     }
 
+    ui->VolumeSlider->blockSignals(true);
     ui->VolumeSlider->setValue(DefaultVolume);
+    ui->VolumeSlider->blockSignals(false);
 
     if (MusicPlayer != nullptr) {
         MusicPlayer->SetVolume(DefaultVolume);
+    }
+
+    QString LastMusicFolder = Settings.value("LastMusicFolder", "").toString();
+    QString LastMusicPath = Settings.value("LastMusicPath", "").toString();
+
+    if (!LastMusicFolder.isEmpty() && QDir(LastMusicFolder).exists()) {
+        CurrentFolderPath = LastMusicFolder;
+
+        MusicPlayer->SetMusicFolder(CurrentFolderPath);
+
+        if (!LastMusicPath.isEmpty() && QFileInfo::exists(LastMusicPath)) {
+            MusicPlayer->SetCurrentIndexByFilePath(LastMusicPath);
+        }
+
+        UpdateCurrentMusicLabel();
+
+        if (Playlist != nullptr) {
+            Playlist->SetMusicList(MusicPlayer->GetMusicList());
+        }
     }
 }

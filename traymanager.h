@@ -26,6 +26,7 @@ private:
     QAction *SleepAction;
     QAction *WakeAction;
     QAction *QuitAction;
+
 };
 
 #endif // TRAYMANAGER_H

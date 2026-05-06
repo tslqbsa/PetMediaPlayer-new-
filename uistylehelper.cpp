@@ -1,3 +1,5 @@
+
+
 #include "uistylehelper.h"
 
 QString UIStyleHelper::GetToolButtonStyle()
