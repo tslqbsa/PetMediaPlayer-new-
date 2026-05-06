@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QString>
+#include "settingswindow.h"
 
 class MusicPlayerManager;
 class PetWidget;
@@ -55,6 +56,8 @@ private slots:
 
     void on_PlaylistButton_clicked();
 
+    void on_SettingsButton_clicked();
+
 private:
     Ui::Widget *ui;
 
@@ -78,6 +81,9 @@ private:
     int LastLyricIndex = -1;
 
     PlaylistWindow *Playlist;
+    SettingsWindow *SettingsWindowWidget = nullptr;
+
+    void LoadSettings();
 };
 
 #endif // WIDGET_H

@@ -12,6 +12,7 @@
 #include <QBrush>
 #include <QFont>
 #include <QColor>
+#include <QSettings>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -181,6 +182,43 @@ Widget::Widget(QWidget *parent)
                 this->raise();
                 this->activateWindow();
             });
+
+    //初始化设置界面
+    SettingsWindowWidget = new SettingsWindow();
+
+    connect(SettingsWindowWidget, &SettingsWindow::LyricBubbleVisibleChanged,
+            this, [this](bool visible) {
+
+                if (Pet != nullptr) {
+                    Pet->SetLyricBubbleVisible(visible);
+                }
+            });
+    connect(SettingsWindowWidget, &SettingsWindow::PetOpacityChanged,
+            this, [this](int value) {
+
+                if (Pet != nullptr) {
+                    Pet->setWindowOpacity(value / 100.0);
+                }
+            });
+    connect(SettingsWindowWidget, &SettingsWindow::PetScaleChanged,
+            this, [this](int value) {
+
+                if (Pet != nullptr) {
+                    Pet->SetPetScale(value);
+                }
+            });
+    connect(SettingsWindowWidget, &SettingsWindow::DefaultVolumeChanged,
+            this, [this](int value) {
+                ui->VolumeSlider->setValue(value);
+            });
+    connect(SettingsWindowWidget, &SettingsWindow::AlwaysOnTopChanged,
+            this, [this](bool enabled) {
+
+                if (Pet != nullptr) {
+                    Pet->SetAlwaysOnTop(enabled);
+                }
+            });
+    LoadSettings();
 }
 
 Widget::~Widget()
@@ -287,6 +325,7 @@ void Widget::on_PlayModeButton_clicked()
 void Widget::SetPetWidget(PetWidget *petWidget)
 {
     Pet = petWidget;
+    LoadSettings();
 }
 
 
@@ -384,3 +423,37 @@ void Widget::on_PlaylistButton_clicked()
     this->hide();
 }
 
+
+void Widget::on_SettingsButton_clicked()
+{
+    if (SettingsWindowWidget == nullptr) {
+        SettingsWindowWidget = new SettingsWindow();
+    }
+
+    SettingsWindowWidget->show();
+    SettingsWindowWidget->raise();
+    SettingsWindowWidget->activateWindow();
+}
+void Widget::LoadSettings()
+{
+    QSettings Settings("LinXuanyu", "PetMediaPlayer");
+
+    bool LyricBubbleVisible = Settings.value("LyricBubbleVisible", true).toBool();
+    int PetOpacity = Settings.value("PetOpacity", 100).toInt();
+    int PetScale = Settings.value("PetScale", 100).toInt();
+    int DefaultVolume = Settings.value("DefaultVolume", 50).toInt();
+    bool AlwaysOnTop = Settings.value("AlwaysOnTop", true).toBool();
+
+    if (Pet != nullptr) {
+        Pet->SetLyricBubbleVisible(LyricBubbleVisible);
+        Pet->setWindowOpacity(PetOpacity / 100.0);
+        Pet->SetPetScale(PetScale);
+        Pet->SetAlwaysOnTop(AlwaysOnTop);
+    }
+
+    ui->VolumeSlider->setValue(DefaultVolume);
+
+    if (MusicPlayer != nullptr) {
+        MusicPlayer->SetVolume(DefaultVolume);
+    }
+}

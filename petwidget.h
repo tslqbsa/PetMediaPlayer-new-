@@ -39,6 +39,9 @@ public:
     void StartListen(); // 进入听歌状态
     void StopListen();  // 退出听歌状态
     void ShowLyric(const QString &text, int duration); // 显示歌词气泡
+    void SetLyricBubbleVisible(bool visible);
+    void SetPetScale(int scale);
+    void SetAlwaysOnTop(bool enabled);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -89,6 +92,13 @@ private:
     bool ListenMoveDirection;
     // 摇摆基准位置
     QPoint ListenBasePosition;
+
+    int PetScale = 100;
+    QString CurrentImagePath;
+    //更新气泡
+    void UpdateBubblePosition();
+
+
 };
 
 #endif // PETWIDGET_H

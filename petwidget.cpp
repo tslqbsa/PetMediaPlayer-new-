@@ -17,6 +17,12 @@ PetWidget::PetWidget(QWidget *parent)
 
     PetLabel = new QLabel(this);
 
+    // 初始化对话框
+    Bubble = new TalkBubble(this);
+    Bubble->SetBubbleScale(PetScale);
+    UpdateBubblePosition();
+    Bubble->hide();
+
     // 初始化控制面板
     ControlPanel = new Widget();
     ControlPanel->SetPetWidget(this);
@@ -26,11 +32,6 @@ PetWidget::PetWidget(QWidget *parent)
     SetPetImage(ImageManager.BaseImage());
     CurrentState = PetState::Idle;
     IsListening = false;
-
-    // 初始化对话框
-    Bubble = new TalkBubble(this);
-    Bubble->move(45, 55);
-    Bubble->hide();
 
     // 初始化托盘
     Tray = new TrayManager(this, this);
@@ -65,6 +66,7 @@ PetWidget::PetWidget(QWidget *parent)
         // 听歌时不随机说话，避免打断歌词
         if (!IsListening && CurrentState == PetState::Idle) {
             Bubble->ShowRandomText(2000);
+            UpdateBubblePosition();
         }
 
         // 随机下一次说话时间
@@ -140,6 +142,8 @@ void PetWidget::ChangeState(PetState state)
 
 void PetWidget::SetPetImage(const QString &path)
 {
+    CurrentImagePath = path;
+
     QPixmap pix(path);
 
     if (pix.isNull()) {
@@ -147,12 +151,25 @@ void PetWidget::SetPetImage(const QString &path)
         return;
     }
 
-    pix = pix.scaled(300, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    int TargetSize = 300 * PetScale / 100;
+
+    pix = pix.scaled(TargetSize, TargetSize,
+                     Qt::KeepAspectRatio,
+                     Qt::SmoothTransformation);
 
     PetLabel->setPixmap(pix);
     PetLabel->resize(pix.size());
+    int MarginTop = 120 * PetScale / 100;
+    int MarginSide = 100 * PetScale / 100;
+    int MarginBottom = 20 * PetScale / 100;
+
+    resize(PetLabel->width() + MarginSide * 2,
+           PetLabel->height() + MarginTop + MarginBottom);
+
     PetLabel->move((width() - PetLabel->width()) / 2,
-                   (height() - PetLabel->height()) / 2);
+                   MarginTop);
+
+    UpdateBubblePosition();
 }
 
 void PetWidget::mousePressEvent(QMouseEvent *event)
@@ -240,6 +257,7 @@ void PetWidget::mouseReleaseEvent(QMouseEvent *event)
     // 随机台词
     if (!IsListening) {
         Bubble->ShowRandomText(1000);
+        UpdateBubblePosition();
     }
 
     // 点击时进入生气状态
@@ -333,4 +351,75 @@ void PetWidget::StopListen()
 void PetWidget::ShowLyric(const QString &text, int duration)
 {
     Bubble->ShowText(text, duration);
+    UpdateBubblePosition();
+}
+
+void PetWidget::SetLyricBubbleVisible(bool visible)
+{
+    if (Bubble == nullptr) {
+        return;
+    }
+
+    if (!visible) {
+        Bubble->hide();
+    }
+
+    Bubble->setVisible(visible);
+}
+
+void PetWidget::SetPetScale(int scale)
+{
+    PetScale = qBound(50, scale, 150);
+
+    if (Bubble != nullptr) {
+        Bubble->SetBubbleScale(PetScale);
+    }
+
+    if (!CurrentImagePath.isEmpty()) {
+        SetPetImage(CurrentImagePath);
+    }
+
+    UpdateBubblePosition();
+}
+void PetWidget::UpdateBubblePosition()
+{
+    if (Bubble == nullptr || PetLabel == nullptr) {
+        return;
+    }
+
+    int Gap = 0;
+
+    int BubbleX = PetLabel->x() + PetLabel->width() / 2 - Bubble->width() / 2;
+
+    int HeadOffset = 70 * PetScale / 100;
+    int BubbleY = PetLabel->y() + HeadOffset - Bubble->height() - Gap;
+
+    int MaxBubbleX = width() - Bubble->width();
+
+    if (MaxBubbleX < 0) {
+        BubbleX = 0;
+    }
+    else {
+        BubbleX = qBound(0, BubbleX, MaxBubbleX);
+    }
+
+    if (BubbleY < 0) {
+        BubbleY = 0;
+    }
+
+    Bubble->move(BubbleX, BubbleY);
+}
+void PetWidget::SetAlwaysOnTop(bool enabled)
+{
+    Qt::WindowFlags Flags = windowFlags();
+
+    if (enabled) {
+        Flags |= Qt::WindowStaysOnTopHint;
+    }
+    else {
+        Flags &= ~Qt::WindowStaysOnTopHint;
+    }
+
+    setWindowFlags(Flags);
+    show();
 }
